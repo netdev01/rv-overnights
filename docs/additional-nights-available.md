@@ -1,0 +1,161 @@
+# Additional Nights Available
+
+This script determines if additional nights are available for booking based on various constraints and existing bookings.
+
+## Overview
+
+The `additional-nights-available.js` script checks if a specified number of additional nights can be booked starting from a selected date, considering existing bookings, hosting availability, and booking policies.
+
+## Input Parameters
+
+The script accepts a JSON object with the following properties:
+
+- **selectedDate** (string): The starting date for additional nights in YYYY-MM-DD format
+- **additionalNights** (number): The number of additional nights to check for availability (integer)
+- **booking** (array): List of existing booking dates in YYYY-MM-DD format
+- **userBooking** (array): List of dates already booked by the current user in YYYY-MM-DD format
+- **daysAvailableToHost** (array): List of days of the week when hosting is available (e.g., ["Monday", "Tuesday", "Wednesday"])
+- **futureDays** (number): Maximum number of days in the future that can be booked (integer)
+- **sameDayBooking** (boolean): Whether same-day bookings are allowed (true/false)
+- **daysInAdvance** (number): Minimum number of days required in advance for booking (integer)
+
+## Output
+
+Returns a JSON object with:
+- **status** (boolean): `true` if all additional nights are available, `false` otherwise
+- **errorMessage** (string): Description of why the booking is not available (empty string if status is true)
+
+## Business Logic
+
+The script validates availability by checking:
+
+1. **Date Range Validity**: Ensures the selected date and additional nights don't exceed future booking limits
+2. **Advance Booking Requirements**: Checks if booking is made with sufficient notice
+3. **Same-Day Booking Policy**: Respects same-day booking restrictions
+4. **Day-of-Week Availability**: Only allows booking on specified hosting days
+5. **Existing Bookings**: Prevents double-booking on dates already reserved
+6. **User Booking Conflicts**: Prevents users from booking dates they already have reserved
+
+## Sample Test Cases
+
+### Test Case 1: Available booking
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-15",
+  "additionalNights": 3,
+  "booking": ["2025-12-10", "2025-12-11"],
+  "userBooking": [],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": true,
+  "errorMessage": ""
+}
+```
+
+### Test Case 2: Conflicting existing booking
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-15",
+  "additionalNights": 3,
+  "booking": ["2025-12-15", "2025-12-16"],
+  "userBooking": [],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "Booking conflict: 2025-12-15 is already booked"
+}
+```
+
+### Test Case 3: Day not available for hosting
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-21",
+  "additionalNights": 2,
+  "booking": [],
+  "userBooking": [],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "Hosting not available on Sunday"
+}
+```
+
+### Test Case 4: Insufficient advance notice
+**Input:**
+```json
+{
+  "selectedDate": "2025-01-13",
+  "additionalNights": 1,
+  "booking": [],
+  "userBooking": [],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 3
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "Bookings must be made at least 3 days in advance"
+}
+```
+
+### Test Case 5: Exceeds future booking limit
+**Input:**
+```json
+{
+  "selectedDate": "2025-04-15",
+  "additionalNights": 5,
+  "booking": [],
+  "userBooking": [],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 30,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "Cannot book more than 30 days in the future"
+}
+```
+
+## Implementation Notes
+
+- All dates should be in YYYY-MM-DD format
+- Day names should be full names (Monday, Tuesday, etc.)
+- The script assumes the current date is today when checking advance booking requirements
+- User bookings take precedence over general bookings for the same user
