@@ -130,18 +130,18 @@ The script validates availability by checking:
 }
 ```
 
-### Test Case 4: Insufficient advance notice
+### Test Case 5: Insufficient advance notice
 **Input:**
 ```json
 {
-  "selectedDate": "2025-01-13",
+  "selectedDate": "2025-11-10",
   "additionalNights": 1,
-  "booking": [],
+  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
   "userBooking": [],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 90,
   "sameDayBooking": false,
-  "daysInAdvance": 3
+  "daysInAdvance": 5
 }
 ```
 
@@ -149,17 +149,17 @@ The script validates availability by checking:
 ```json
 {
   "status": false,
-  "errorMessage": "Bookings must be made at least 3 days in advance"
+  "errorMessage": "Bookings must be made at least 5 days in advance"
 }
 ```
 
-### Test Case 5: Exceeds future booking limit
+### Test Case 6: Exceeds future booking limit
 **Input:**
 ```json
 {
-  "selectedDate": "2025-04-15",
+  "selectedDate": "2026-02-15",
   "additionalNights": 5,
-  "booking": [],
+  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
   "userBooking": [],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 30,
@@ -173,6 +173,98 @@ The script validates availability by checking:
 {
   "status": false,
   "errorMessage": "Cannot book more than 30 days in the future"
+}
+```
+
+### Test Case 7: Same-day booking not allowed
+**Input:**
+```json
+{
+  "selectedDate": "2025-11-06",
+  "additionalNights": 1,
+  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+  "userBooking": [],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 0
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "Same-day bookings are not allowed"
+}
+```
+
+### Test Case 8: Invalid date format
+**Input:**
+```json
+{
+  "selectedDate": "2025/12/15",
+  "additionalNights": 3,
+  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+  "userBooking": [],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "Invalid selected date format. Expected YYYY-MM-DD"
+}
+```
+
+### Test Case 9: Invalid additional nights
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-15",
+  "additionalNights": 0,
+  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+  "userBooking": [],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "Additional nights must be a positive integer"
+}
+```
+
+### Test Case 10: Multiple nights with mixed conflicts
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-15",
+  "additionalNights": 5,
+  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-18"],
+  "userBooking": ["2025-12-08", "2025-12-09", "2025-12-19"],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "Booking conflict: 2025-12-18 is already booked"
 }
 ```
 

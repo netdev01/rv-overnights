@@ -169,8 +169,9 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Example usage for testing
 if (typeof require !== 'undefined' && require.main === module) {
-  // Test cases from documentation with realistic booking data
+  // Comprehensive test cases covering all failure conditions
   const testCases = [
+    // Test Case 1: Available booking
     {
       selectedDate: "2025-12-15",
       additionalNights: 3,
@@ -181,6 +182,7 @@ if (typeof require !== 'undefined' && require.main === module) {
       sameDayBooking: false,
       daysInAdvance: 2
     },
+    // Test Case 2: Conflicting existing booking
     {
       selectedDate: "2025-12-15",
       additionalNights: 3,
@@ -191,6 +193,7 @@ if (typeof require !== 'undefined' && require.main === module) {
       sameDayBooking: false,
       daysInAdvance: 2
     },
+    // Test Case 3: User booking conflict
     {
       selectedDate: "2025-12-15",
       additionalNights: 3,
@@ -201,12 +204,79 @@ if (typeof require !== 'undefined' && require.main === module) {
       sameDayBooking: false,
       daysInAdvance: 2
     },
+    // Test Case 4: Day not available for hosting
     {
       selectedDate: "2025-12-21",
       additionalNights: 2,
       booking: ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20"],
       userBooking: ["2025-12-08", "2025-12-09"],
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday"],
+      futureDays: 90,
+      sameDayBooking: false,
+      daysInAdvance: 2
+    },
+    // Test Case 5: Insufficient advance notice
+    {
+      selectedDate: "2025-11-10",
+      additionalNights: 1,
+      booking: ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      futureDays: 90,
+      sameDayBooking: false,
+      daysInAdvance: 5
+    },
+    // Test Case 6: Exceeds future booking limit
+    {
+      selectedDate: "2026-02-15",
+      additionalNights: 5,
+      booking: ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      futureDays: 30,
+      sameDayBooking: false,
+      daysInAdvance: 2
+    },
+    // Test Case 7: Same-day booking not allowed
+    {
+      selectedDate: "2025-11-06",
+      additionalNights: 1,
+      booking: ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      futureDays: 90,
+      sameDayBooking: false,
+      daysInAdvance: 0
+    },
+    // Test Case 8: Invalid date format
+    {
+      selectedDate: "2025/12/15",
+      additionalNights: 3,
+      booking: ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      futureDays: 90,
+      sameDayBooking: false,
+      daysInAdvance: 2
+    },
+    // Test Case 9: Invalid additional nights
+    {
+      selectedDate: "2025-12-15",
+      additionalNights: 0,
+      booking: ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      futureDays: 90,
+      sameDayBooking: false,
+      daysInAdvance: 2
+    },
+    // Test Case 10: Multiple nights with mixed conflicts
+    {
+      selectedDate: "2025-12-15",
+      additionalNights: 5,
+      booking: ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-18"],
+      userBooking: ["2025-12-08", "2025-12-09", "2025-12-19"],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       futureDays: 90,
       sameDayBooking: false,
       daysInAdvance: 2
