@@ -44,8 +44,8 @@ The script validates availability by checking:
 {
   "selectedDate": "2025-12-15",
   "additionalNights": 3,
-  "booking": ["2025-12-10", "2025-12-11"],
-  "userBooking": [],
+  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20", "2025-12-21"],
+  "userBooking": ["2025-12-08", "2025-12-09"],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 90,
   "sameDayBooking": false,
@@ -67,8 +67,8 @@ The script validates availability by checking:
 {
   "selectedDate": "2025-12-15",
   "additionalNights": 3,
-  "booking": ["2025-12-15", "2025-12-16"],
-  "userBooking": [],
+  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-15", "2025-12-16", "2025-12-20", "2025-12-21"],
+  "userBooking": ["2025-12-08", "2025-12-09"],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 90,
   "sameDayBooking": false,
@@ -84,14 +84,37 @@ The script validates availability by checking:
 }
 ```
 
-### Test Case 3: Day not available for hosting
+### Test Case 3: User booking conflict
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-15",
+  "additionalNights": 3,
+  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20", "2025-12-21"],
+  "userBooking": ["2025-12-08", "2025-12-09", "2025-12-16"],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "You already have a booking on 2025-12-16"
+}
+```
+
+### Test Case 4: Day not available for hosting
 **Input:**
 ```json
 {
   "selectedDate": "2025-12-21",
   "additionalNights": 2,
-  "booking": [],
-  "userBooking": [],
+  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20"],
+  "userBooking": ["2025-12-08", "2025-12-09"],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday"],
   "futureDays": 90,
   "sameDayBooking": false,

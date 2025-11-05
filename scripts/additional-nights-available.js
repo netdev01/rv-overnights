@@ -169,33 +169,43 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Example usage for testing
 if (typeof require !== 'undefined' && require.main === module) {
-  // Test cases from documentation (updated for current date)
+  // Test cases from documentation with realistic booking data
   const testCases = [
     {
-      selectedDate: "2025-12-15", // Future date
+      selectedDate: "2025-12-15",
       additionalNights: 3,
-      booking: ["2025-12-10", "2025-12-11"],
-      userBooking: [],
+      booking: ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20", "2025-12-21"],
+      userBooking: ["2025-12-08", "2025-12-09"],
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       futureDays: 90,
       sameDayBooking: false,
       daysInAdvance: 2
     },
     {
-      selectedDate: "2025-12-15", // Future date
+      selectedDate: "2025-12-15",
       additionalNights: 3,
-      booking: ["2025-12-15", "2025-12-16"],
-      userBooking: [],
+      booking: ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-15", "2025-12-16", "2025-12-20", "2025-12-21"],
+      userBooking: ["2025-12-08", "2025-12-09"],
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       futureDays: 90,
       sameDayBooking: false,
       daysInAdvance: 2
     },
     {
-      selectedDate: "2025-12-21", // Saturday - not available for hosting
+      selectedDate: "2025-12-15",
+      additionalNights: 3,
+      booking: ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20", "2025-12-21"],
+      userBooking: ["2025-12-08", "2025-12-09", "2025-12-16"],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      futureDays: 90,
+      sameDayBooking: false,
+      daysInAdvance: 2
+    },
+    {
+      selectedDate: "2025-12-21",
       additionalNights: 2,
-      booking: [],
-      userBooking: [],
+      booking: ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20"],
+      userBooking: ["2025-12-08", "2025-12-09"],
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday"],
       futureDays: 90,
       sameDayBooking: false,
