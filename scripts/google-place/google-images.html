@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Images Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .gallery img {
+            max-width: 300px;
+            height: auto;
+            display: block;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .gallery img:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Gallery</h1>
+    <div class="gallery">
+        <img src="https://e0a9cc2463e889cd2914f7aaab2c7.cdn.bubble.io/f1760108802686x250055374605513400/unnamed.jpg" alt="unnamed">
+        <img src="https://e0a9cc2463e889cd2914f7aaab2c7.cdn.bubble.io/f1760108804016x214682237056833540/2024-04-11.jpg" alt="2024-04-11">
+        <img src="https://e0a9cc2463e889cd2914f7aaab2c7.cdn.bubble.io/f1760108805161x514407261882170500/2024-04-11.jpg" alt="2024-04-11">
+        <img src="https://e0a9cc2463e889cd2914f7aaab2c7.cdn.bubble.io/f176010880622x237716534873035460/2024-04-12.jpg" alt="2024-04-12">
+        <img src="https://e0a9cc2463e889cd2914f7aaab2c7.cdn.bubble.io/f1760108808141x800676445510648300/2024-04-11.jpg" alt="2024-04-11">
+        <img src="https://e0a9cc2463e889cd2914f7aaab2c7.cdn.bubble.io/f176010880876x63859729383400600/2024-04-11.jpg" alt="2024-04-11">
+        <img src="https://e0a9cc2463e889cd2914f7aaab2c7.cdn.bubble.io/f1760108810127x794374913351858500/2024-04-11.jpg" alt="2024-04-11">
+    </div>
+</body>
+</html>

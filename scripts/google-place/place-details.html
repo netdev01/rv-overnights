@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Lavender Co. - Place Details</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .content {
+            padding: 30px;
+        }
+        .info-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            background-color: #f8f9fa;
+        }
+        .info-section h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .info-item label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .place-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .place-image:hover {
+            transform: scale(1.05);
+        }
+        .reviews-section {
+            margin-top: 40px;
+        }
+        .review {
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fafbfc;
+        }
+        .review .rating {
+            color: #ffa500;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .address {
+            font-size: 1.1em;
+            margin: 10px 0;
+        }
+        .phone, .website {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .phone:hover, .website:hover {
+            text-decoration: underline;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .status.operational {
+            background-color: #d4edda;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Our Lavender Co.</h1>
+            <div class="address">20380 County Rd 4, Big Springs, NE 69122, USA</div>
+            <div class="status operational">OPERATIONAL</div>
+        </div>
+
+        <div class="content">
+            <div class="info-section">
+                <h2>Place Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Phone:</label>
+                        <span><a href="tel:(507) 298-1812" class="phone">(507) 298-1812</a></span>
+                    </div>
+                    <div class="info-item">
+                        <label>Website:</label>
+                        <span><a href="http://www.ourlavenderco.com/" class="website" target="_blank">http://www.ourlavenderco.com/</a></span>
+                    </div>
+                    <div class="info-item">
+                        <label>Rating:</label>
+                        <span>5⭐ (54 reviews)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Types:</label>
+                        <span>establishment, point_of_interest, store</span>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="info-section">
+                <h2>Opening Hours</h2>
+                <div>Monday: Closed<br>Tuesday: 9:00 AM – 5:00 PM<br>Wednesday: 9:00 AM – 5:00 PM<br>Thursday: 9:00 AM – 5:00 PM<br>Friday: 9:00 AM – 5:00 PM<br>Saturday: 10:00 AM – 4:00 PM<br>Sunday: Closed</div>
+            </div>
+            
+
+            
+
+            <div class="info-section">
+                <h2>Photo Gallery</h2>
+                <div class="gallery">
+                    <img src="images/photo_1.jpg" alt="Photo 1" class="place-image" onerror="this.style.display='none'"><img src="images/photo_2.jpg" alt="Photo 2" class="place-image" onerror="this.style.display='none'"><img src="images/photo_3.jpg" alt="Photo 3" class="place-image" onerror="this.style.display='none'"><img src="images/photo_4.jpg" alt="Photo 4" class="place-image" onerror="this.style.display='none'"><img src="images/photo_5.jpg" alt="Photo 5" class="place-image" onerror="this.style.display='none'"><img src="images/photo_6.jpg" alt="Photo 6" class="place-image" onerror="this.style.display='none'"><img src="images/photo_7.jpg" alt="Photo 7" class="place-image" onerror="this.style.display='none'"><img src="images/photo_8.jpg" alt="Photo 8" class="place-image" onerror="this.style.display='none'"><img src="images/photo_9.jpg" alt="Photo 9" class="place-image" onerror="this.style.display='none'"><img src="images/photo_10.jpg" alt="Photo 10" class="place-image" onerror="this.style.display='none'">
+                </div>
+            </div>
+
+            
+            <div class="reviews-section">
+                <h2>Recent Reviews</h2>
+                
+    <div class="review">
+      <h4>Kathy OBRIEN</h4>
+      <div class="rating">Rating: 5⭐</div>
+      <p>"What a wonderful family farm! We stayed here as Harvest Hosts guests and had a great experience. The owners are absolutely lovely people that took time to tell us their family’s story and explain how they harvest and process their lavender. Their storefront was fantastic with a wide variety of beautifully packaged products. We had a peaceful night and enjoyed a breakfast of the best cinnamon rolls of our my life. 10/10 recommend this has a Harvest Host site and as a wonderful place to purchase lavender products. There are times when you meet people and instantly know they are good, kind, wonderful people that you respect. That is how we felt about this family. Thank you for the fantastic experience. God bless."</p>
+      <small>3 months ago</small>
+    </div>
+  
+    <div class="review">
+      <h4>Joan Ware</h4>
+      <div class="rating">Rating: 5⭐</div>
+      <p>"Beautiful farm. Such healthy lavender and and all kinds of other flowers.
+They have a small store with all kinds of goodies too."</p>
+      <small>a week ago</small>
+    </div>
+  
+    <div class="review">
+      <h4>Michelle Deines</h4>
+      <div class="rating">Rating: 5⭐</div>
+      <p>"I heard about this place on the local radio station. I wanted to stop by before school started and I'm so glad we did! I didn't think my husband would have as much fun as he did! My kids loved the tour of the greenhouse. The owner is so kind and knowledgeable!! The start up story is interesting and incredible to hear. Our Lavender Co. is definitely a great place to stop, learn, and shop!! I can't wait to go back!!! Thank you for a super fun experience!!!"</p>
+      <small>2 months ago</small>
+    </div>
+  
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        // Handle image loading errors
+        document.querySelectorAll('.place-image').forEach(img => {
+            img.addEventListener('error', function() {
+                this.style.display = 'none';
+                console.log('Image failed to load:', this.src);
+            });
+        });
+    </script>
+</body>
+</html>

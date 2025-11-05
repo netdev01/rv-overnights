@@ -1,0 +1,847 @@
+<style>
+    .mapboxgl-popup-content {
+        padding: 0 !important;
+        width: 360px;
+        min-height: 108px;
+        box-shadow: none;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .marker {
+        width: 16px;
+        height: 16px;
+        background-color: #EC7A28;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #EC7A28;
+    }
+    
+    /* Loading Indicator Styles */
+    .loading-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 999;
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 50%;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: none; /* Hidden by default */
+        transition: background-color 0.3s ease;
+    }
+
+    /* Waiting state - lighter color */
+    .loading-container.waiting {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Active fetching state - more visible */
+    .loading-container.fetching {
+        background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    /* Waiting state spinner - uses pulse animation */
+    .waiting .loading-spinner {
+        border: 5px solid rgba(240, 168, 117, 0.3); /* Very light orange border */
+        background-color: rgba(240, 168, 117, 0.2); /* Light orange fill */
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* Active fetching state spinner - uses spin animation */
+    .fetching .loading-spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #d86918; /* Original orange */
+        background-color: transparent;
+        animation: spin 0.8s linear infinite;
+    }
+
+    /* Spin animation for fetching state */
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Pulse animation for waiting state */
+    @keyframes pulse {
+        0% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+        50% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div id='map' style="position: relative;">
+    <!-- Loading indicator (inside map) -->
+    <div class="loading-container" id="loading-indicator">
+        <div class="loading-spinner"></div>
+    </div>
+</div>
+
+<script>
+mapboxgl.accessToken = '';
+
+var clickedMarker = null;
+var bubble_id = "1";
+
+var rigTypes = [];
+var hostAmenities = [];
+var rvAmenities = [];
+var same_day_requests = null;
+var checkinTime = 0;
+var tags = [];
+var dataLoaded = false;
+var allMarkersData = [];
+var categoryID = []; // Dynamic Data
+var status = "";
+var type = "";
+var searchfield = "";
+var daysAvailableToHost = "";
+var selectedDate = "";
+var maxRigSize = 1;
+var city = null;
+var state = "";
+var distance = 70;
+var area = null;
+var surfaceFilteredLocationIDs = ""; // Surface filter for spaces
+
+var map = null;
+var isLoading = false;
+var isFetching = false;
+var initialLoadComplete = false;
+var loadingTimeout = null;
+
+document.addEventListener("reloadMap", function () {
+    map.resize();
+    initZoomButtons();
+});
+
+function initMap(){
+    map = new mapboxgl.Map({
+        container: 'map',
+        style: '',  // Dynamic Data
+        center: [-95.7129, 37],
+        zoom: 3.5
+    });
+}
+
+initMap();
+
+var dataCount = 0;
+
+map.on('load', function() {
+    updateWeatherLayers();
+    initializeTileLayer();
+    addLocationsLayer();
+    fetchDataAndProcess();
+    initZoomButtons();
+    var initialLon = -94.56550925601103;
+    var initialLat = 39.03409066116173;
+    initialLoadComplete = false;
+});
+
+function initZoomButtons() {
+    var zoomInButton = document.getElementById('zoom-in');
+    var zoomOutButton = document.getElementById('zoom-out');
+    if(zoomInButton && zoomOutButton) {
+        zoomInButton.addEventListener('click', function() {
+            map.zoomIn();
+        });
+
+        zoomOutButton.addEventListener('click', function() {
+            map.zoomOut();
+        });
+    }
+}
+
+function addMarker() {
+    var el = document.createElement('div');
+    el.className = 'marker';
+    new mapboxgl.Marker(el)
+        .setLngLat([]) // Dynamic Data
+        .addTo(map);
+}
+
+function fetchDataAndProcess() {
+    if (isLoading) return; // Prevent multiple requests
+    
+    showLoading();
+    showFetching();
+    
+    var bounds = map.getBounds();
+    var currentZoom = map.getZoom();
+   
+// Always use wide bounds to load all data (initial load and filters)
+bounds = {
+    getWest: () => -200,
+    getEast: () => -10, 
+    getNorth: () => 90,
+    getSouth: () => 0
+};
+currentZoom = 1;
+
+if (!dataLoaded) {
+    console.log('Initial load - fetching all data...');
+} else {
+    console.log('Filter update - fetching all data globally...');
+}
+    
+    // PRESERVED REQUEST BODY - EXACTLY AS YOU NEED IT
+    var requestBody = {
+        "rig_types": rigTypes,
+        "same_day_requests": same_day_requests,
+        "host_amenities": hostAmenities,
+        "rv_amenities": rvAmenities,
+        "checkin_time": checkinTime,
+        "tags": tags,
+        "dev": false,
+        "category_id": categoryID,
+        "status": status,
+        "country": "",  // Dynamic Data
+        "current_zoom": currentZoom,
+        "type": type,
+        "searchfield": searchfield,
+        "Days_Available_To_Host": daysAvailableToHost,
+        "selected_date": selectedDate,
+        "max_rig_size": maxRigSize,
+        "city_point": city,
+        "bubble_id": bubble_id,
+        "State": state,
+        "area": area,
+        "polygon": {
+            "type": "poly",
+            "data": [
+                { "lng": bounds.getWest(), "lat": bounds.getNorth() },
+                { "lng": bounds.getEast(), "lat": bounds.getNorth() },
+                { "lng": bounds.getEast(), "lat": bounds.getSouth() },
+                { "lng": bounds.getWest(), "lat": bounds.getSouth() },
+                { "lng": bounds.getWest(), "lat": bounds.getNorth() } 
+            ]
+        }
+    };
+
+    fetchAndProcessData(requestBody);
+}
+
+function showLoading() {
+    if (!isLoading) {
+        isLoading = true;
+        var loadingIndicator = document.getElementById('loading-indicator');
+        loadingIndicator.classList.add('waiting');
+        loadingIndicator.classList.remove('fetching');
+        loadingIndicator.style.display = 'block';
+    }
+}
+
+function showFetching() {
+    if (isLoading) {
+        isFetching = true;
+        var loadingIndicator = document.getElementById('loading-indicator');
+        loadingIndicator.classList.remove('waiting');
+        loadingIndicator.classList.add('fetching');
+    }
+}
+
+function hideLoading() {
+    if (isLoading) {
+        isLoading = false;
+        isFetching = false;
+        var loadingIndicator = document.getElementById('loading-indicator');
+        loadingIndicator.classList.remove('waiting');
+        loadingIndicator.classList.remove('fetching');
+        loadingIndicator.style.display = 'none';
+    }
+}
+
+function fetchAndProcessData(requestBody) {
+    // If called without requestBody (from filters), build it
+    if (!requestBody) {
+        fetchDataAndProcess();
+        return;
+    }
+    
+    showFetching();
+    fetchDataWithRetry(requestBody, 0);
+}
+
+function fetchDataWithRetry(requestBody, attemptNumber) {
+    const maxAttempts = 3;
+    
+    fetch('https://xuol-b9qt-btqq.n7d.xano.io/api:2FqFrDHH/filtered_locations_map', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!initialLoadComplete) {
+            initialLoadComplete = true;
+        }
+        
+        if (!dataLoaded) {
+            dataLoaded = true;
+            allMarkersData = data;
+            console.log(`Initial load complete: ${data.length} locations loaded`);
+        } else {
+            allMarkersData = data;
+            console.log(`Filter update: ${data.length} locations loaded`);
+        }
+
+        if (data.length > 0) {
+            preloadImagesAndAddData(data);
+        } else {
+            console.log('No data returned from API');
+            clearMarkers();
+            hideLoading();
+        }
+    })
+    .catch(error => {
+        console.error(`Data fetch attempt ${attemptNumber + 1} failed:`, error);
+        
+        if (attemptNumber < maxAttempts - 1) {
+            console.log(`Retrying in ${(attemptNumber + 1) * 2} seconds...`);
+            setTimeout(() => {
+                fetchDataWithRetry(requestBody, attemptNumber + 1);
+            }, (attemptNumber + 1) * 2000);
+        } else {
+            console.error('All retry attempts failed');
+            hideLoading();
+        }
+    });
+}
+
+function clearMarkers() {
+    const locationsSource = map.getSource('locationsSource');
+    if (locationsSource) {
+        locationsSource.setData({
+            type: 'FeatureCollection',
+            features: []
+        });
+    }
+}
+
+function preloadImagesAndAddData(data) {
+    if (data.length === 0) {
+        hideLoading();
+        return;
+    }
+
+    var imagesToLoad = [];
+    data.forEach(function(location) {
+        if (location._category && location._category.pin_icon && location._category.pin_icon.url) {
+            imagesToLoad.push(location._category.pin_icon.url);
+        }
+    });
+
+    // Remove duplicates
+    imagesToLoad = [...new Set(imagesToLoad)];
+
+    if (imagesToLoad.length === 0) {
+        addMarkers(data);
+        hideLoading();
+        return;
+    }
+
+    // CRITICAL: Add 8-second safety timeout
+    var safetyTimeout = setTimeout(function() {
+        console.warn('Image loading timeout after 8 seconds - showing markers anyway');
+        addMarkers(data);
+        hideLoading();
+    }, 8000);
+
+    const imagePromises = imagesToLoad.map(imageUrl => {
+        return new Promise((resolve) => {
+            // Individual image timeout (3 seconds)
+            var imageTimeout = setTimeout(() => {
+                console.warn('Individual image timed out after 3 seconds:', imageUrl);
+                resolve(); // Always resolve to prevent hanging
+            }, 3000);
+
+            if (map.hasImage(imageUrl)) {
+                clearTimeout(imageTimeout);
+                resolve();
+            } else {
+                map.loadImage(imageUrl, function(error, image) {
+                    clearTimeout(imageTimeout);
+                    
+                    if (error) {
+                        console.error('Error loading image:', error, 'URL:', imageUrl);
+                    } else {
+                        try {
+                            map.addImage(imageUrl, image);
+                            console.log('Successfully loaded image:', imageUrl);
+                        } catch (e) {
+                            console.error('Error adding image:', e, 'URL:', imageUrl);
+                        }
+                    }
+                    resolve(); // Always resolve, never reject
+                });
+            }
+        });
+    });
+
+    Promise.allSettled(imagePromises)
+        .then(() => {
+            clearTimeout(safetyTimeout);
+            addMarkers(data);
+            hideLoading();
+        });
+}
+
+function addMarkers(data) {
+    const locationsSource = map.getSource('locationsSource');
+    if (locationsSource) {
+        // APPLY SURFACE FILTER HERE
+        let filteredData = data;
+        
+        // Apply surface filter if provided
+        if (typeof surfaceFilteredLocationIDs !== 'undefined' && surfaceFilteredLocationIDs && surfaceFilteredLocationIDs.trim() !== "") {
+            const allowedIDs = surfaceFilteredLocationIDs.split(',').map(id => id.trim());
+            filteredData = data.filter(location => {
+                return allowedIDs.includes(location.bubble_id);
+            });
+            console.log(`Surface filter applied: showing ${filteredData.length} of ${data.length} locations`);
+        }
+        
+        const features = filteredData.map(function(location) {
+            return {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [location.lon, location.lat]
+                },
+                properties: {
+                    icon: location._category.pin_icon.url,
+                    name: location.Location_title,
+                    bubble_id: location.bubble_id,
+                    main_img_link: location.main_img_link,
+                    city_and_state: location.sity_and_state,
+                    cat_type: location._category.cat_type,
+                    cat_title: location._category.title,
+                    max_size: location.Max_Rig_Size,
+                    additional_nights: location.additional_nights
+                }
+            };
+        });
+        
+        locationsSource.setData({
+            type: 'FeatureCollection',
+            features: features
+        });
+        
+        console.log(`Updated map with ${features.length} markers`);
+    }
+}
+
+function addLocationsLayer() {
+    map.addSource('locationsSource', {
+        type: 'geojson',
+        data: {
+            type: 'FeatureCollection',
+            features: []
+        }
+    });
+
+    map.addLayer({
+        id: 'locationsLayer',
+        type: 'symbol',
+        source: 'locationsSource',
+        layout: {
+            'icon-image': ['get', 'icon'],
+            'icon-allow-overlap': true,
+            'icon-size': 0.7,
+        }
+    });
+
+    map.on('click', 'locationsLayer', function(e) {
+        if (window.innerWidth < 800) {
+            if (typeof bubble_fn_bubbleid === 'function') {
+                bubble_fn_bubbleid(e.features[0].properties.bubble_id);
+            }
+        } else {
+            var name = e.features[0].properties.name;
+            var icon = e.features[0].properties.icon;
+            var type = e.features[0].properties.type;
+            var max_size = e.features[0].properties.max_size;
+            var main_img_link = e.features[0].properties.main_img_link + "?tpl=med.jpg";
+            var full_adress = e.features[0].properties.full_adress;
+            var bubbleid = e.features[0].properties.bubble_id;
+            var cat_type = e.features[0].properties.cat_type;
+            var cat_title = e.features[0].properties.cat_title;
+            var city_and_state = e.features[0].properties.city_and_state;
+            var additional_nights = e.features[0].properties.additional_nights;
+            
+            var maxNightText = additional_nights ? '1+ nights' : 'Max 1 night';
+
+            var tooltipHtml = `
+                <a href="member/location/${bubbleid}" target="_blank" style="text-decoration: none;">
+                <div class="tooltip_container" style="min-width:360px;max-width:360px;min-height:108px;display:flex;">
+                <div class="div_img" style="background-image:url('${main_img_link}');background-position:50%;background-repeat:no-repeat;background-size:cover;width:130px;margin-left:auto;margin-right:auto;"></div>
+                <div class="content_container" style="background-color:#fff;flex-flow:column;width:65%;margin-left:auto;margin-right:auto;padding:10px;display:flex;">
+                <div>
+                <div class="content_for_all" style="border-bottom:1px solid #e9e9e9;flex-flow:row;margin-bottom:8px;padding-bottom:8px;display:flex;">
+                <div class="icon_pin" style="background-image:url('${icon}');background-position:50%;background-repeat:no-repeat;background-size:cover;min-width:23px;height:34px;margin-right:10px;"></div>
+                <div class="title_and_adress_container">
+                <div class="text_header" style="margin-bottom:3px;font-family:Inter, sans-serif;font-size:14px;font-weight:600;line-height:120%;">${name}</div>
+                <div class="div-block-10" style="margin-left:-2px;display:flex;">
+                <div class="div-block-9" style="background-image:url('https://assets-global.website-files.com/66377a8844c6d1e8029e7021/663a1f113879603b55abf797_Iconography%20-%20Caesarzkn%20(22).svg');background-position:0 0;background-repeat:no-repeat;background-size:cover;width:15px;height:15px;margin-right:2px;"></div>
+                <div class="text_addres" style="color:#a3a3a3;font-family:Inter, sans-serif;font-size:12px;line-height:14px;">${city_and_state}</div>
+                </div>
+                </div>
+                </div>
+                <div class="text-block-5" style="color:#d86918;margin-bottom:8px;font-size:12px;line-height:14px;">${cat_type} (${cat_title})</div>
+                <div>
+                <div class="div-block-8" style="margin-bottom:8px;display:${cat_type === 'RVO Host' ? 'flex' : 'none'};">
+                <div class="div-block-7" style="flex-flow:row;justify-content:center;align-items:center;margin-right:18px;font-size:12px;display:flex;">
+                <div class="div-block-6" style="background-image:url('https://assets-global.website-files.com/66377a8844c6d1e8029e7021/6637a3ba273968f93dc8fa74_Iconography%20-%20Caesarzkn%20(20).svg');background-position:0 0;background-size:cover;justify-content:center;align-items:center;width:16px;height:16px;margin-right:4px;display:block;"></div>
+                <div class="max_size_text" style="font-family:Inter, sans-serif;font-size:12px;font-weight:600;line-height:12px;">${maxNightText}</div>
+                </div>
+                <div class="div-block-7" style="flex-flow:row;justify-content:center;align-items:center;margin-right:18px;font-size:12px;display:flex;">
+                <div class="div-block-11" style="background-image:url('https://assets-global.website-files.com/66377a8844c6d1e8029e7021/6637a3ba97d41e9d5a097f7e_Iconography%20-%20Caesarzkn%20(21).svg');background-position:0 0;background-repeat:no-repeat;background-size:cover;width:16px;height:16px;margin-right:4px;"></div>
+                <div class="max_size_text" style="font-family:Inter, sans-serif;font-size:12px;font-weight:600;line-height:12px;">${max_size} ft</div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </a>`; // Dynamic Data
+
+            var coordinates = e.features[0].geometry.coordinates.slice();
+
+            new mapboxgl.Popup({ maxWidth: 480, maxHeight: 140 })
+                .setLngLat(coordinates)
+                .setHTML(tooltipHtml)
+                .addTo(map);
+        }
+    });
+
+    map.on('mouseenter', 'locationsLayer', function() {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+
+    map.on('mouseleave', 'locationsLayer', function() {
+        map.getCanvas().style.cursor = '';
+    });
+}
+
+// Weather variables
+var showTemperature = ;  // Dynamic Data
+var showPrecipitation = ;  // Dynamic Data
+var showClouds = ;  // Dynamic Data
+var showWind = ;  // Dynamic Data
+var showAirQuality = ;  // Dynamic Data
+var showAirQuality = ;  // Dynamic Data
+var showWildfires = ;  // Dynamic Data
+var showTileLayer = ;  // Dynamic Data
+var showDarkSkies = ;  // Dynamic Data
+
+var weatherApiKey = '';
+var airQualityApiKey = '';
+var firmsToken = '';
+
+var weatherLayerUrls = {
+    temperature: `https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${weatherApiKey}`,
+    precipitation: `https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${weatherApiKey}`,
+    clouds: `https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=${weatherApiKey}`,
+    wind: `https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=${weatherApiKey}`
+};
+
+var activeLayers = {};
+
+function toggleWeatherLayer(layer, shouldShow) {
+    var layerId = `${layer}-layer`;
+
+    if (shouldShow) {
+        if (!map.getLayer(layerId)) {
+            map.addSource(layer, {
+                type: 'raster',
+                tiles: [weatherLayerUrls[layer]],
+                tileSize: 256
+            });
+
+            map.addLayer({
+                id: layerId,
+                type: 'raster',
+                source: layer
+            });
+        }
+    } else {
+        if (map.getLayer(layerId)) {
+            map.removeLayer(layerId);
+            map.removeSource(layer);
+        }
+    }
+}
+
+function toggleAirQualityLayer(shouldShow) {
+    var layerId = 'airQuality-layer';
+
+    if (shouldShow) {
+        if (!activeLayers[layerId]) {
+            map.addSource('airQuality', {
+                type: 'raster',
+                tiles: [
+                    `https://airquality.googleapis.com/v1/mapTypes/US_AQI/heatmapTiles/{z}/{x}/{y}?key=${airQualityApiKey}`
+                ],
+                tileSize: 256,
+                minzoom: 0,
+                maxzoom: 6
+            });
+            map.addLayer({
+                id: layerId,
+                type: 'raster',
+                source: 'airQuality',
+                paint: {
+                    'raster-opacity': 0.5
+                }
+            });
+            activeLayers[layerId] = true;
+        }
+    } else {
+        if (activeLayers[layerId]) {
+            map.removeLayer(layerId);
+            map.removeSource('airQuality');
+            activeLayers[layerId] = false;
+        }
+    }
+}
+
+async function toggleWildfireLayer(shouldShow) {
+    var firmsWildfireUrl = `https://firms.modaps.eosdis.nasa.gov/usfs/api/area/csv/${firmsToken}/VIIRS_SNPP_NRT/-140,15,-50,85/1`;
+
+    if (shouldShow) {
+        if (!activeLayers['wildfire-layer']) {
+            try {
+                var wildfireData = await fetchWildfireData(firmsWildfireUrl);
+                map.addSource('wildfire', {
+                    type: 'geojson',
+                    data: wildfireData
+                });
+                map.addLayer({
+                    id: 'wildfire-layer',
+                    type: 'circle',
+                    source: 'wildfire',
+                    paint: {
+                        'circle-radius': 5,
+                        'circle-color': 'orange',
+                        'circle-opacity': 0.8
+                    }
+                });
+                activeLayers['wildfire-layer'] = true;
+                console.log("Wildfire layer added");
+            } catch (error) {
+                console.error('Error fetching wildfire data:', error);
+            }
+        }
+    } else {
+        if (activeLayers['wildfire-layer']) {
+            if (map.getLayer('wildfire-layer')) map.removeLayer('wildfire-layer');
+            if (map.getSource('wildfire')) map.removeSource('wildfire');
+            activeLayers['wildfire-layer'] = false;
+            console.log("Wildfire layer removed");
+        }
+    }
+}
+
+function toggleDarkSkiesLayer(shouldShow) {
+    if (shouldShow) {
+        if (!activeLayers['darkSkies-layer']) {
+            map.setStyle('mapbox://styles/mapbox/dark-v10');
+            map.once('style.load', function () {
+                
+                // Add a very subtle background brightness layer first
+                map.addLayer({
+                    id: 'background-brightness',
+                    type: 'background',
+                    paint: {
+                        'background-color': 'rgba(255, 255, 255, 0.08)'  // Very subtle white overlay
+                    }
+                });
+                
+                // Then add the dark skies overlay on top
+                map.addSource('darkSkies', {
+                    type: 'raster',
+                    url: 'mapbox://rvovernights.bcwpx4yn',
+                    tileSize: 256
+                });
+                
+                map.addLayer({
+                    id: 'darkSkies-layer',
+                    type: 'raster',
+                    source: 'darkSkies',
+                    paint: {
+                        'raster-opacity': 0.8
+                    }
+                });
+                
+                // Reinitialize the location layers after style change
+                addLocationsLayer();
+                
+                // Wait a moment then add all markers back
+                setTimeout(() => {
+                    if (allMarkersData && allMarkersData.length > 0) {
+                        addMarkers(allMarkersData);
+                    }
+                }, 1000);
+                
+                activeLayers['darkSkies-layer'] = true;
+            });
+        }
+    } else {
+        if (activeLayers['darkSkies-layer']) {
+            map.setStyle('mapbox://styles/mapbox/streets-v11');  // Dynamic Data
+            map.once('style.load', function () {
+                // Reinitialize layers after returning to normal style
+                addLocationsLayer();
+                
+                // Wait a moment then add all markers back and update weather layers
+                setTimeout(() => {
+                    if (allMarkersData && allMarkersData.length > 0) {
+                        addMarkers(allMarkersData);
+                    }
+                    updateWeatherLayers();
+                }, 1000);
+                
+                activeLayers['darkSkies-layer'] = false;
+            });
+        }
+    }
+}
+
+function initializeTileLayer() {
+    if (showTileLayer) {
+        var tileLayerId = '';  // Dynamic Data
+        var tileSourceLayer = '';  // Dynamic Data
+
+        if (!map.getLayer('custom-tile-layer')) {
+            map.addSource('custom-tile-source', {
+                type: 'vector',
+                url: `mapbox://${tileLayerId}`
+            });
+
+            map.addLayer({
+                id: 'custom-tile-layer',
+                type: 'fill',
+                source: 'custom-tile-source',
+                'source-layer': tileSourceLayer,
+                paint: {
+                    'fill-color': '',  // Dynamic Data
+                    'fill-opacity': 0.5,
+                    'fill-outline-color': '',  // Dynamic Data
+                    'fill-outline-opacity': 0.7,
+                    'stroke-width': 2
+                }
+            });
+
+            console.log("Custom tileset initialized.");
+        }
+    } else {
+        if (map.getLayer('custom-tile-layer')) {
+            map.removeLayer('custom-tile-layer');
+            map.removeSource('custom-tile-source');
+            console.log("Custom tileset removed.");
+        }
+    }
+}
+
+async function fetchWildfireData(url) {
+    var response = await fetch(url);
+    var csv = await response.text();
+    return csvToGeoJSON(csv);
+}
+
+function csvToGeoJSON(csv) {
+    var lines = csv.split('\n');
+    var features = lines.slice(1).map(function(line) {
+        var [latitude, longitude, brightness] = line.split(',');
+        if (latitude && longitude && !isNaN(latitude) && !isNaN(longitude)) {
+            return {
+                type: 'Feature',
+                geometry: { type: 'Point', coordinates: [parseFloat(longitude), parseFloat(latitude)] },
+                properties: { brightness: parseFloat(brightness) }
+            };
+        }
+    }).filter(Boolean);
+    return { type: 'FeatureCollection', features: features };
+}
+
+function updateWeatherLayers() {
+    toggleWeatherLayer('temperature', showTemperature);
+    toggleWeatherLayer('precipitation', showPrecipitation);
+    toggleWeatherLayer('clouds', showClouds);
+    toggleWeatherLayer('wind', showWind);
+    toggleAirQualityLayer(showAirQuality);
+    toggleWildfireLayer(showWildfires);
+    toggleDarkSkiesLayer(showDarkSkies);
+    initializeTileLayer();
+}
+
+// Your existing filter system calls fetchDataAndProcess() directly
+
+// Removed moveend refetching - only loads on initial load and filter changes
+map.on('moveend', function() {
+    if (!dataLoaded && !initialLoadComplete) {
+        fetchDataAndProcess();
+        return;
+    }
+    console.log('Map moved, but data already loaded - no refetch needed');
+});
+
+map.on('movestart', function() {
+    if (!dataLoaded) {
+        clearTimeout(loadingTimeout);
+        loadingTimeout = setTimeout(showLoading, 300);
+    }
+});
+
+map.on('movestart', function() {
+    if (!dataLoaded) {
+        clearTimeout(loadingTimeout);
+        loadingTimeout = setTimeout(showLoading, 300);
+    }
+});
+
+// ADD THE UPDATE SURFACE FILTER FUNCTION
+function updateSurfaceFilter(locationIDs) {
+    surfaceFilteredLocationIDs = locationIDs || "";
+    console.log(`Surface filter updated: ${surfaceFilteredLocationIDs}`);
+    
+    // Refresh the markers with the new filter using existing data
+    if (allMarkersData && allMarkersData.length > 0) {
+        addMarkers(allMarkersData);
+    }
+}
+
+// MAKE FUNCTIONS GLOBALLY ACCESSIBLE FOR BUBBLE
+window.updateSurfaceFilter = updateSurfaceFilter;
+window.surfaceFilteredLocationIDs = surfaceFilteredLocationIDs;
+window.toggleDarkSkiesLayer = toggleDarkSkiesLayer;
+
+</script>

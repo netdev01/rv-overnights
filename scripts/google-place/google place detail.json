@@ -1,0 +1,394 @@
+{
+  "html_attributions": [],
+  "result": {
+    "address_components": [
+      {
+        "long_name": "20380",
+        "short_name": "20380",
+        "types": [
+          "street_number"
+        ]
+      },
+      {
+        "long_name": "County Road 4",
+        "short_name": "County Rd 4",
+        "types": [
+          "route"
+        ]
+      },
+      {
+        "long_name": "Big Springs",
+        "short_name": "Big Springs",
+        "types": [
+          "locality",
+          "political"
+        ]
+      },
+      {
+        "long_name": "Big Springs Precinct",
+        "short_name": "Big Springs Precinct",
+        "types": [
+          "administrative_area_level_3",
+          "political"
+        ]
+      },
+      {
+        "long_name": "Deuel County",
+        "short_name": "Deuel County",
+        "types": [
+          "administrative_area_level_2",
+          "political"
+        ]
+      },
+      {
+        "long_name": "Nebraska",
+        "short_name": "NE",
+        "types": [
+          "administrative_area_level_1",
+          "political"
+        ]
+      },
+      {
+        "long_name": "United States",
+        "short_name": "US",
+        "types": [
+          "country",
+          "political"
+        ]
+      },
+      {
+        "long_name": "69122",
+        "short_name": "69122",
+        "types": [
+          "postal_code"
+        ]
+      }
+    ],
+    "adr_address": "<span class=\"street-address\">20380 County Rd 4</span>, <span class=\"locality\">Big Springs</span>, <span class=\"region\">NE</span> <span class=\"postal-code\">69122</span>, <span class=\"country-name\">USA</span>",
+    "business_status": "OPERATIONAL",
+    "current_opening_hours": {
+      "open_now": true,
+      "periods": [
+        {
+          "close": {
+            "date": "2025-10-14",
+            "day": 2,
+            "time": "1700"
+          },
+          "open": {
+            "date": "2025-10-14",
+            "day": 2,
+            "time": "0900"
+          }
+        },
+        {
+          "close": {
+            "date": "2025-10-15",
+            "day": 3,
+            "time": "1700"
+          },
+          "open": {
+            "date": "2025-10-15",
+            "day": 3,
+            "time": "0900"
+          }
+        },
+        {
+          "close": {
+            "date": "2025-10-16",
+            "day": 4,
+            "time": "1700"
+          },
+          "open": {
+            "date": "2025-10-16",
+            "day": 4,
+            "time": "0900"
+          }
+        },
+        {
+          "close": {
+            "date": "2025-10-17",
+            "day": 5,
+            "time": "1700"
+          },
+          "open": {
+            "date": "2025-10-17",
+            "day": 5,
+            "time": "0900"
+          }
+        },
+        {
+          "close": {
+            "date": "2025-10-18",
+            "day": 6,
+            "time": "1600"
+          },
+          "open": {
+            "date": "2025-10-18",
+            "day": 6,
+            "time": "1000"
+          }
+        }
+      ],
+      "weekday_text": [
+        "Monday: Closed",
+        "Tuesday: 9:00 AM – 5:00 PM",
+        "Wednesday: 9:00 AM – 5:00 PM",
+        "Thursday: 9:00 AM – 5:00 PM",
+        "Friday: 9:00 AM – 5:00 PM",
+        "Saturday: 10:00 AM – 4:00 PM",
+        "Sunday: Closed"
+      ]
+    },
+    "formatted_address": "20380 County Rd 4, Big Springs, NE 69122, USA",
+    "formatted_phone_number": "(507) 298-1812",
+    "geometry": {
+      "location": {
+        "lat": 41.0194804,
+        "lng": -102.1119198
+      },
+      "viewport": {
+        "northeast": {
+          "lat": 41.0208242302915,
+          "lng": -102.1105571197085
+        },
+        "southwest": {
+          "lat": 41.0181262697085,
+          "lng": -102.1132550802915
+        }
+      }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/generic_business-71.png",
+    "icon_background_color": "#7B9EB0",
+    "icon_mask_base_uri": "https://maps.gstatic.com/mapfiles/place_api/icons/v2/generic_pinlet",
+    "international_phone_number": "+1 507-298-1812",
+    "name": "Our Lavender Co.",
+    "opening_hours": {
+      "open_now": true,
+      "periods": [
+        {
+          "close": {
+            "day": 2,
+            "time": "1700"
+          },
+          "open": {
+            "day": 2,
+            "time": "0900"
+          }
+        },
+        {
+          "close": {
+            "day": 3,
+            "time": "1700"
+          },
+          "open": {
+            "day": 3,
+            "time": "0900"
+          }
+        },
+        {
+          "close": {
+            "day": 4,
+            "time": "1700"
+          },
+          "open": {
+            "day": 4,
+            "time": "0900"
+          }
+        },
+        {
+          "close": {
+            "day": 5,
+            "time": "1700"
+          },
+          "open": {
+            "day": 5,
+            "time": "0900"
+          }
+        },
+        {
+          "close": {
+            "day": 6,
+            "time": "1600"
+          },
+          "open": {
+            "day": 6,
+            "time": "1000"
+          }
+        }
+      ],
+      "weekday_text": [
+        "Monday: Closed",
+        "Tuesday: 9:00 AM – 5:00 PM",
+        "Wednesday: 9:00 AM – 5:00 PM",
+        "Thursday: 9:00 AM – 5:00 PM",
+        "Friday: 9:00 AM – 5:00 PM",
+        "Saturday: 10:00 AM – 4:00 PM",
+        "Sunday: Closed"
+      ]
+    },
+    "photos": [
+      {
+        "height": 3024,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/113184342639488837979\">Chelsea Turek</a>"
+        ],
+        "photo_reference": "AciIO2cRqe3wz5FwO0CjVzqp7gHBjIGCM2yqMmeyPkZDcNrW4YDLgOGV_Pqq_KUYbsmS9W-tGmXxCprjjrVrnP8uKN5psHmzIhMjEAhLQIiWbpp0ljWfzJx4-X-d312soCGc4MoE0t9JWLbXHEDCsNFfcl88pp6GQcG571DjoHSL8jCHYWA49rX5mwj42xOh-x2j5obHnJgNifIImTjFsZE5qMvg1FeAk7232jGvgdUNcnA8_MfxJxylxLIAmnE1Wmv7bTiGFcZI6PxEVneWDRR7nANa8ByIGXN6KhC0_R6xFpCIiv-Sdz_lIVEhWEK3h2GfYpcWFOUORvEKKL4tLaTgWCkqNN8kDpicjGK2m-IPS7WVI3azgD1B1uu2-Zsd-M4p9a_yajq_jgKHLPVMyL4turZiJWknEB9e5hHmdbH22up4ig",
+        "width": 4032
+      },
+      {
+        "height": 3024,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/113184342639488837979\">Chelsea Turek</a>"
+        ],
+        "photo_reference": "AciIO2c1B_rXEh2pQ8OveS8QQflpKGmDw_UwPPRHNnk8v1lOVw2UxHuRYBBNIs8DitmM_2mIS2uQNiQSw_1yZXc41BVTfYowHND507unzUwHj2g2C8OxMv-3PA42qOtHaDC_5KMCWEwB3mwsZN4J0JXGHHBfDEvALOX8Brqi4vTtWcZEu5zu83yR_gmYaVntxJFyjI4nf3pASrwG5XEF3bLa3ZqzGVKsTqocuEDUZ5rwhHbgxlB7sTPOU0-oRo9wgcWvNguPBRxy58kCgKY_4gQP34Bgu2qIH1yr1LvjSCb64aGkGpjBOKPMyxUOpD5lcJx3wMH4rufghta0R4ZkV1fq0VMXslLq4-P8h98mlzQBZGL6-J-WfrDPnizOmqj95rdk8wiwWLw5ORnPLottu6FqSaQibMB0xJDzg3JQDPoQdeOgbHay",
+        "width": 4032
+      },
+      {
+        "height": 1365,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/107718482700766588891\">Our Lavender Co.</a>"
+        ],
+        "photo_reference": "AciIO2ftNCFMPiNUBsnmTOKoHCCbtRa5EFb9BCDm3XvaLuv2GgLYoIGWj_HhUxDLf8uq83eMpFF4UG5DzI0BQZfFndaYfZ5MmWiKfXtlVJ3sWyfhV4rRWUh4JpM4AiVUptj-ZiLWncJGFt_U79Nzb4F9WnfOBquZfG_ZKFarmx9jg-Xu2UXrd3oz0HhuknoGAEhRjb1ak-G8oWF3ubuuGgj-lpqFXhy3rpBnFsgCS3lRgxheCmQKSBcg0WkWpxqs6T9XDdZQusgsmaHEzN2UI0s-uNTas4uxgWoWhYoNSZ85JrH8HA",
+        "width": 2048
+      },
+      {
+        "height": 3199,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/107718482700766588891\">Our Lavender Co.</a>"
+        ],
+        "photo_reference": "AciIO2cjeZaMaDs4S5ZfnPHV9f5cMjMx93zgonuLljcn4CYUog-4s_0vNQ33o_dvb42G6N3EYcxt93f1-ZfOvB88eLxFgI0n0Nr68Sb7YAiCEDoiTTX2bR9i6khSP_Th3IOzJJueuTASo4wbZ9kTRysY6_uly7i2YEKLsYSIyNU10N7nMO7dUxSasJ3AOOj2iRoXKEve7C5mCgkdRdMsYhNc42k4RCEZQNVxJmBnLvm7yAX4BP69g03kpdLlB_F3WPKWpMKyhMm-CU0J3F60YBqjhz4jNTUL4hFCjPTkCn_aLPJMGw",
+        "width": 4800
+      },
+      {
+        "height": 4032,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/102489829369849703261\">Kathy OBRIEN</a>"
+        ],
+        "photo_reference": "AciIO2dZt32yJJ221OT5Z8O0-gIesX_fv8qd5dn--m_WrrjM7QCruL634r3px7wLYu-pu9g659zSfhfUz1fMbO4NCNMBfMgOemvf8JCCbzV2kPaZ7cEoWJ-gFYAVhczGiUPabE7EkcjUwbhjB2Pv_52UfiumBQIM6ePYLZFpUlrRw6gGgQeaCEN0kZo0O7U4T5MBUVtayHNn1dRn8jLJXeqcIxwszHsjPM8WmHmXYOI0UkS0We32ndSkOCJkJ1uGzwHIGI75x96007avWbLwgi8PxCet-LfP9cIj1oZHo4C31zNs2M-7gQFXvvdgg5qv-yEschYK0KqPY08HzF5_-_66abYcS6DDmx_JEdShefAdIxPH34MLlVH9Iz9l4arB0XrOoBXpwGi3QEY92j_vreWBu21-krqsjaWknQUH8UR_49IdYgn9mOrCTQdTJ3hpIRkR",
+        "width": 3024
+      },
+      {
+        "height": 4000,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/105657121415743824227\">Chris Rehberg</a>"
+        ],
+        "photo_reference": "w",
+        "width": 3000
+      },
+      {
+        "height": 3199,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/107718482700766588891\">Our Lavender Co.</a>"
+        ],
+        "photo_reference": "AciIO2fj3zJtwxj4sHn6J7G1gDwY4UkUII8nXtd9pAaldOUK5I66pTb5dajWKaM89Q6R_tHvgpdymDHR8hW94WkPCe9NVlFk7o423U78SnL8-s94vYxQcU5lfySiYDkIObE8Qf7aMLoz0-5RAhtW5wCtKm1_-kA9EXxGUgekeRpPme0ULTw-vP2mAbxculDhbs2jf-OOa4gSwdBuZJTbulATMfgXM5bgaiX_4gsU5JuNZomqLqvEL7ZAu-cdrGksnAw-ChQwT8i1e_94ByH4zQLAAs1Hf2AekeifSIKj4eQcQ4GnNQ",
+        "width": 4800
+      },
+      {
+        "height": 3000,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/117354896341166750304\">Brigette Staack</a>"
+        ],
+        "photo_reference": "AciIO2dAizDWgoWdp0nnKpjCqefqe-45sD7P4xqfsxsVL-gzXZ5xX2Sv5BGWOQqGMVEHyXwiQaYKv3QYJOiXSr-jpUFqjzXrDdMS4D8875WfyfSGug8x4BCEzErMrYPV7HcPJV0qVuckkP4A4BNb0Ctxo-jpJ2gIkT2_UUbgnGo7kZd9-1tXw3lrsGQ7lChjbmxSmqN8GiM0dtjfJCpqb0aq8_wn0_M3ZAImU0pxzR3yOb36AjI41hEErMuBidrxvHYAcHcgiVUi8U7zAnzqX42RUuf0wkFPp_X70C-z_mdikTBz410CHifM5MirQEuWjI4v8e_KySQ40UPevX5eUzva47oCQHL-Z_nQclqA5zK3vg1X63SCJEP44C2MJAiPpLAAz5LCWfdiAU7ENFVYkFhkYIBHLJH4FEGSf-HUvtALKZzHl-Tm",
+        "width": 4000
+      },
+      {
+        "height": 4032,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/107718482700766588891\">Our Lavender Co.</a>"
+        ],
+        "photo_reference": "AciIO2f9aID-XbMm0TlURw-vohOsHuYjbkzZcJh1Ozz5Ik50epO225JFNJLL3JlIIz4nWTKql2zuyBPPpW0Zh6oiQfR-bIGcc-3vYo5YKZcJ2CEwndnJAbevtjsx5bd3Ea1Gjoe7waKW1Qg--TMRFL1zoHXv41qMUG5wW80RbzZX7Ee1p-9kn3xT4_XYGHEZB30Dz9mor1RgFyAKiiXR9afQCzEptlhAdOU2YK6Wz7cESGnUe-97Lw4KLhdQCmaYONX6QIAH2Utis2UDHAE70hRm0Yawv5PN70wPOdsWcTUvlUcTag",
+        "width": 3024
+      },
+      {
+        "height": 4032,
+        "html_attributions": [
+          "<a href=\"https://maps.google.com/maps/contrib/107718482700766588891\">Our Lavender Co.</a>"
+        ],
+        "photo_reference": "AciIO2diXZv8VSqvV9eKvNwhSk56pdk0ASJ1ZmIWfqBLyXTCtii3a_qnkQZVF2KqAMA1br5H759cpc7GuMRCUq21GaVT86z-_bhB_-ihj-5HVQuXYq26GOPrFibrg-PXuCYcq61T8DJ_5UH5mz2Ot2sAWKnxCmG6kdkDTt6q68rf8nQ6OhcghEloUH9TyHZlCWYt8jk9uGgneFzVngk8Prj5u3Sa06Y8ULaSthoDKfl9cj0chVhQ6-zBBExp_njoMkTXeNKn8LIzFdkhhr6XoaFM_bIyV14GIIDT1SFMvqpM72PC4g",
+        "width": 3024
+      }
+    ],
+    "place_id": "ChIJI9h85uM1cYcRCGRkTesz_Fw",
+    "plus_code": {
+      "compound_code": "2V9Q+Q6 Big Springs, NE, USA",
+      "global_code": "85HV2V9Q+Q6"
+    },
+    "rating": 5,
+    "reference": "ChIJI9h85uM1cYcRCGRkTesz_Fw",
+    "reviews": [
+      {
+        "author_name": "Kathy OBRIEN",
+        "author_url": "https://www.google.com/maps/contrib/102489829369849703261/reviews",
+        "language": "en",
+        "original_language": "en",
+        "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocLVof-PWPfABPISR315D0aIh2aScqyKd6BPk5KEDpsOBpzcnA=s128-c0x00000000-cc-rp-mo-ba3",
+        "rating": 5,
+        "relative_time_description": "3 months ago",
+        "text": "What a wonderful family farm! We stayed here as Harvest Hosts guests and had a great experience. The owners are absolutely lovely people that took time to tell us their family’s story and explain how they harvest and process their lavender. Their storefront was fantastic with a wide variety of beautifully packaged products. We had a peaceful night and enjoyed a breakfast of the best cinnamon rolls of our my life. 10/10 recommend this has a Harvest Host site and as a wonderful place to purchase lavender products. There are times when you meet people and instantly know they are good, kind, wonderful people that you respect. That is how we felt about this family. Thank you for the fantastic experience. God bless.",
+        "time": 1752077646,
+        "translated": false
+      },
+      {
+        "author_name": "Joan Ware",
+        "author_url": "https://www.google.com/maps/contrib/102703200459139668616/reviews",
+        "language": "en",
+        "original_language": "en",
+        "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjXsR6RcEG4U4R9-f-nvEVbd4f62VOqTLKwE-FD3AsLYxJf7ExEtlg=s128-c0x00000000-cc-rp-mo-ba4",
+        "rating": 5,
+        "relative_time_description": "a week ago",
+        "text": "Beautiful farm. Such healthy lavender and and all kinds of other flowers.\nThey have a small store with all kinds of goodies too.",
+        "time": 1759785877,
+        "translated": false
+      },
+      {
+        "author_name": "Michelle Deines",
+        "author_url": "https://www.google.com/maps/contrib/106186552314232263764/reviews",
+        "language": "en",
+        "original_language": "en",
+        "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocIIdEOy0TiENPHO-uOb1u7Q_diGG6_-koMtAqMBgE-QgE2KWA=s128-c0x00000000-cc-rp-mo",
+        "rating": 5,
+        "relative_time_description": "2 months ago",
+        "text": "I heard about this place on the local radio station. I wanted to stop by before school started and I'm so glad we did! I didn't think my husband would have as much fun as he did! My kids loved the tour of the greenhouse. The owner is so kind and knowledgeable!! The start up story is interesting and incredible to hear. Our Lavender Co. is definitely a great place to stop, learn, and shop!! I can't wait to go back!!! Thank you for a super fun experience!!!",
+        "time": 1754422462,
+        "translated": false
+      },
+      {
+        "author_name": "Chris Rehberg",
+        "author_url": "https://www.google.com/maps/contrib/105657121415743824227/reviews",
+        "language": "en",
+        "original_language": "en",
+        "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocI7dGjviPRtsbJnBrkFM9mc5VNzCkT9Jwc9eGTzkaXtsGmOgg=s128-c0x00000000-cc-rp-mo-ba7",
+        "rating": 5,
+        "relative_time_description": "a year ago",
+        "text": "This 2024 Nebraska Passport stop was somewhere in the upper 40s for us, so we are past the half-way point for getting all the stops.  These people are absolutely fantastic, and they run the BEST smelling shoppe of everywhere we have stopped so far (personally, I don't see how they will be beat either). We picked up a few things, but so far the lavender jam is the favorite.  It is going fast!",
+        "time": 1720968870,
+        "translated": false
+      },
+      {
+        "author_name": "Bill Napier",
+        "author_url": "https://www.google.com/maps/contrib/105868199478548336011/reviews",
+        "language": "en",
+        "original_language": "en",
+        "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocLR1nqqwlHXlk44ZHZfkyCShMrvU1B9FRmheNxzc5uiGyf60Q=s128-c0x00000000-cc-rp-mo",
+        "rating": 5,
+        "relative_time_description": "3 months ago",
+        "text": "It was a delightful morning in western Nebraska if you're out this way you must stop take in all they have to offer.  Excellent gift shop with tons of lavender related gifts, foods, sprays, candles!  Ran by a friendly farming family.  If you need infused simple syrup for your favorite cocktail they have that too and it's quite good.",
+        "time": 1750376914,
+        "translated": false
+      }
+    ],
+    "types": [
+      "establishment",
+      "point_of_interest",
+      "store"
+    ],
+    "url": "https://maps.google.com/?cid=6700287431329211400",
+    "user_ratings_total": 54,
+    "utc_offset": -360,
+    "vicinity": "20380 County Rd 4, Big Springs",
+    "website": "http://www.ourlavenderco.com/",
+    "wheelchair_accessible_entrance": true
+  },
+  "status": "OK"
+}
