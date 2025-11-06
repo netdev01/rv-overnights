@@ -4,7 +4,7 @@ This script determines if additional nights are available for booking based on v
 
 ## Overview
 
-The `additional-nights-available.js` script checks if a specified number of additional nights can be booked starting from a selected date, considering existing bookings, hosting availability, and booking policies.
+The `scripts/additional-nights-available/index.js` script is designed for Bubble.io's server-side JavaScript actions. It checks if a specified number of additional nights can be booked starting from a selected date, considering existing bookings, hosting availability, and booking policies.
 
 ## Input Parameters
 
@@ -12,19 +12,21 @@ The script accepts a JSON object with the following properties:
 
 - **selectedDate** (string): The starting date for additional nights in YYYY-MM-DD format
 - **additionalNights** (number): The number of additional nights to check for availability (integer)
-- **booking** (array): List of existing booking dates in YYYY-MM-DD format
-- **userBooking** (array): List of dates already booked by the current user in YYYY-MM-DD format
+- **isChangeRequest** (boolean): Whether this is a change request for existing booking (true/false). If true, the function will automatically identify and exclude the original booking dates from conflict checking using the selectedDate to match the booking's checkIn date
+- **allBookings** (array): List of existing future booking ranges, each as an object with `checkIn` and `checkout` properties (YYYY-MM-DD format)
+- **userBooking** (array): List of current user's future booking ranges, each as an object with `checkIn` and `checkout` properties (YYYY-MM-DD format)
 - **daysAvailableToHost** (array): List of days of the week when hosting is available (e.g., ["Monday", "Tuesday", "Wednesday"])
 - **futureDays** (number): Maximum number of days in the future that can be booked (integer)
 - **sameDayBooking** (boolean): Whether same-day bookings are allowed (true/false)
 - **daysInAdvance** (number): Minimum number of days required in advance for booking (integer)
-- **isChangeRequest** (boolean): Whether this is a change request for existing booking (true/false). If true, user's existing bookings won't conflict with the requested dates
 
 ## Output
 
 Returns a JSON object with:
 - **status** (boolean): `true` if all additional nights are available, `false` otherwise
 - **errorMessage** (string): Description of why the booking is not available (empty string if status is true)
+
+**Note**: The JSON object return format `{status, errorMessage}` is a requirement for Bubble.io Toolbox's Server Script action.
 
 ## Business Logic
 
@@ -37,6 +39,27 @@ The script validates availability by checking:
 5. **Existing Bookings**: Prevents double-booking on dates already reserved
 6. **User Booking Conflicts**: Prevents users from booking dates they already have reserved
 
+## Implementation Notes
+
+- All dates should be in YYYY-MM-DD format
+- Day names should be full names (Monday, Tuesday, etc.)
+- The script assumes the current date is today when checking advance booking requirements
+- User bookings take precedence over general bookings for the same user
+
+## File Structure
+
+```
+scripts/
+└── additional-nights-available/
+    ├── index.js          # Main function (copy to Bubble.io)
+    └── test.js           # Comprehensive test suite
+```
+
+## Usage
+
+- **Copy to Bubble.io**: Copy the contents of `scripts/additional-nights-available/index.js` to your Bubble.io server-side JavaScript action
+- **Run tests**: `node scripts/additional-nights-available/test.js`
+
 ## Sample Test Cases
 
 ### Test Case 1: Available booking
@@ -45,8 +68,15 @@ The script validates availability by checking:
 {
   "selectedDate": "2025-12-15",
   "additionalNights": 3,
-  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20", "2025-12-21"],
-  "userBooking": ["2025-12-08", "2025-12-09"],
+  "isChangeRequest": false,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
+    {"checkIn": "2025-12-10", "checkout": "2025-12-12"},
+    {"checkIn": "2025-12-20", "checkout": "2025-12-22"}
+  ],
+  "userBooking": [
+    {"checkIn": "2025-12-08", "checkout": "2025-12-10"}
+  ],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 90,
   "sameDayBooking": false,
@@ -68,8 +98,15 @@ The script validates availability by checking:
 {
   "selectedDate": "2025-12-15",
   "additionalNights": 3,
-  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-15", "2025-12-16", "2025-12-20", "2025-12-21"],
-  "userBooking": ["2025-12-08", "2025-12-09"],
+  "isChangeRequest": false,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
+    {"checkIn": "2025-12-15", "checkout": "2025-12-18"},
+    {"checkIn": "2025-12-20", "checkout": "2025-12-22"}
+  ],
+  "userBooking": [
+    {"checkIn": "2025-12-08", "checkout": "2025-12-10"}
+  ],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 90,
   "sameDayBooking": false,
@@ -91,8 +128,16 @@ The script validates availability by checking:
 {
   "selectedDate": "2025-12-15",
   "additionalNights": 3,
-  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20", "2025-12-21"],
-  "userBooking": ["2025-12-08", "2025-12-09", "2025-12-16"],
+  "isChangeRequest": false,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
+    {"checkIn": "2025-12-10", "checkout": "2025-12-12"},
+    {"checkIn": "2025-12-20", "checkout": "2025-12-22"}
+  ],
+  "userBooking": [
+    {"checkIn": "2025-12-08", "checkout": "2025-12-10"},
+    {"checkIn": "2025-12-16", "checkout": "2025-12-19"}
+  ],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 90,
   "sameDayBooking": false,
@@ -114,8 +159,15 @@ The script validates availability by checking:
 {
   "selectedDate": "2025-12-21",
   "additionalNights": 2,
-  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20"],
-  "userBooking": ["2025-12-08", "2025-12-09"],
+  "isChangeRequest": false,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
+    {"checkIn": "2025-12-10", "checkout": "2025-12-12"},
+    {"checkIn": "2025-12-20", "checkout": "2025-12-21"}
+  ],
+  "userBooking": [
+    {"checkIn": "2025-12-08", "checkout": "2025-12-10"}
+  ],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday"],
   "futureDays": 90,
   "sameDayBooking": false,
@@ -137,7 +189,10 @@ The script validates availability by checking:
 {
   "selectedDate": "2025-11-10",
   "additionalNights": 1,
-  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+  "isChangeRequest": false,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"}
+  ],
   "userBooking": [],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 90,
@@ -160,7 +215,10 @@ The script validates availability by checking:
 {
   "selectedDate": "2026-02-15",
   "additionalNights": 5,
-  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+  "isChangeRequest": false,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"}
+  ],
   "userBooking": [],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 30,
@@ -183,7 +241,10 @@ The script validates availability by checking:
 {
   "selectedDate": "2025-11-06",
   "additionalNights": 1,
-  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+  "isChangeRequest": false,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"}
+  ],
   "userBooking": [],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 90,
@@ -206,7 +267,10 @@ The script validates availability by checking:
 {
   "selectedDate": "2025/12/15",
   "additionalNights": 3,
-  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+  "isChangeRequest": false,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"}
+  ],
   "userBooking": [],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 90,
@@ -229,7 +293,10 @@ The script validates availability by checking:
 {
   "selectedDate": "2025-12-15",
   "additionalNights": 0,
-  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05"],
+  "isChangeRequest": false,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"}
+  ],
   "userBooking": [],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 90,
@@ -252,8 +319,15 @@ The script validates availability by checking:
 {
   "selectedDate": "2025-12-15",
   "additionalNights": 5,
-  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-18"],
-  "userBooking": ["2025-12-08", "2025-12-09", "2025-12-19"],
+  "isChangeRequest": false,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
+    {"checkIn": "2025-12-18", "checkout": "2025-12-19"}
+  ],
+  "userBooking": [
+    {"checkIn": "2025-12-08", "checkout": "2025-12-10"},
+    {"checkIn": "2025-12-19", "checkout": "2025-12-20"}
+  ],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 90,
   "sameDayBooking": false,
@@ -273,15 +347,21 @@ The script validates availability by checking:
 **Input:**
 ```json
 {
-  "selectedDate": "2025-12-15",
-  "additionalNights": 3,
-  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20", "2025-12-21"],
-  "userBooking": ["2025-12-08", "2025-12-09", "2025-12-15", "2025-12-16"],
+  "selectedDate": "2025-12-08",
+  "additionalNights": 2,
+  "isChangeRequest": true,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
+    {"checkIn": "2025-12-12", "checkout": "2025-12-14"},
+    {"checkIn": "2025-12-20", "checkout": "2025-12-22"}
+  ],
+  "userBooking": [
+    {"checkIn": "2025-12-08", "checkout": "2025-12-10"}
+  ],
   "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "futureDays": 90,
   "sameDayBooking": false,
-  "daysInAdvance": 2,
-  "isChangeRequest": true
+  "daysInAdvance": 2
 }
 ```
 
@@ -293,9 +373,170 @@ The script validates availability by checking:
 }
 ```
 
-## Implementation Notes
+### Test Case 12: Change request with conflict on different dates
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-08",
+  "additionalNights": 5,
+  "isChangeRequest": true,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
+    {"checkIn": "2025-12-12", "checkout": "2025-12-14"},
+    {"checkIn": "2025-12-20", "checkout": "2025-12-22"}
+  ],
+  "userBooking": [
+    {"checkIn": "2025-12-08", "checkout": "2025-12-10"}
+  ],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
 
-- All dates should be in YYYY-MM-DD format
-- Day names should be full names (Monday, Tuesday, etc.)
-- The script assumes the current date is today when checking advance booking requirements
-- User bookings take precedence over general bookings for the same user
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "Booking conflict: 2025-12-12 is already booked"
+}
+```
+
+### Test Case 13: Change request with invalid selectedDate (no matching user booking)
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-15",
+  "additionalNights": 2,
+  "isChangeRequest": true,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
+    {"checkIn": "2025-12-12", "checkout": "2025-12-14"},
+    {"checkIn": "2025-12-20", "checkout": "2025-12-22"}
+  ],
+  "userBooking": [
+    {"checkIn": "2025-12-08", "checkout": "2025-12-10"}
+  ],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "You already have a booking on 2025-12-08"
+}
+```
+
+### Test Case 14: Booking range exceeds future limit
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-25",
+  "additionalNights": 10,
+  "isChangeRequest": false,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"}
+  ],
+  "userBooking": [],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 30,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "Cannot book more than 30 days in the future"
+}
+```
+
+### Test Case 15: Invalid date in booking arrays
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-15",
+  "additionalNights": 2,
+  "isChangeRequest": false,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
+    {"checkIn": "invalid-date", "checkout": "2025-12-12"}
+  ],
+  "userBooking": [
+    {"checkIn": "2025-12-08", "checkout": "2025-12-10"}
+  ],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "Invalid booking range format. Each booking must have checkIn and checkout dates in YYYY-MM-DD format"
+}
+```
+
+### Test Case 16: Empty booking arrays
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-15",
+  "additionalNights": 3,
+  "isChangeRequest": false,
+  "allBookings": [],
+  "userBooking": [],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": true,
+  "errorMessage": ""
+}
+```
+
+### Test Case 17: Multiple user bookings with change request
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-08",
+  "additionalNights": 10,
+  "isChangeRequest": true,
+  "allBookings": [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
+    {"checkIn": "2025-12-20", "checkout": "2025-12-22"}
+  ],
+  "userBooking": [
+    {"checkIn": "2025-12-08", "checkout": "2025-12-10"},
+    {"checkIn": "2025-12-16", "checkout": "2025-12-18"}
+  ],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2
+}
+```
+
+**Output:**
+```json
+{
+  "status": false,
+  "errorMessage": "You already have a booking on 2025-12-16"
+}
