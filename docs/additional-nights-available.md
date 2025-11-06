@@ -18,6 +18,7 @@ The script accepts a JSON object with the following properties:
 - **futureDays** (number): Maximum number of days in the future that can be booked (integer)
 - **sameDayBooking** (boolean): Whether same-day bookings are allowed (true/false)
 - **daysInAdvance** (number): Minimum number of days required in advance for booking (integer)
+- **isChangeRequest** (boolean): Whether this is a change request for existing booking (true/false). If true, user's existing bookings won't conflict with the requested dates
 
 ## Output
 
@@ -265,6 +266,30 @@ The script validates availability by checking:
 {
   "status": false,
   "errorMessage": "Booking conflict: 2025-12-18 is already booked"
+}
+```
+
+### Test Case 11: Change request - user can book over their own existing bookings
+**Input:**
+```json
+{
+  "selectedDate": "2025-12-15",
+  "additionalNights": 3,
+  "booking": ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20", "2025-12-21"],
+  "userBooking": ["2025-12-08", "2025-12-09", "2025-12-15", "2025-12-16"],
+  "daysAvailableToHost": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "futureDays": 90,
+  "sameDayBooking": false,
+  "daysInAdvance": 2,
+  "isChangeRequest": true
+}
+```
+
+**Output:**
+```json
+{
+  "status": true,
+  "errorMessage": ""
 }
 ```
 

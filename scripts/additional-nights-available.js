@@ -60,6 +60,13 @@ function checkAdditionalNightsAvailable(input) {
       };
     }
 
+    if (typeof input.isChangeRequest !== 'boolean') {
+      return {
+        status: false,
+        errorMessage: "isChangeRequest must be a boolean"
+      };
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -121,8 +128,8 @@ function checkAdditionalNightsAvailable(input) {
         };
       }
 
-      // Check user bookings
-      if (input.userBooking.includes(dateString)) {
+      // Check user bookings (skip if this is a change request)
+      if (!input.isChangeRequest && input.userBooking.includes(dateString)) {
         return {
           status: false,
           errorMessage: `You already have a booking on ${dateString}`
@@ -180,7 +187,8 @@ if (typeof require !== 'undefined' && require.main === module) {
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       futureDays: 90,
       sameDayBooking: false,
-      daysInAdvance: 2
+      daysInAdvance: 2,
+      isChangeRequest: false
     },
     // Test Case 2: Conflicting existing booking
     {
@@ -191,7 +199,8 @@ if (typeof require !== 'undefined' && require.main === module) {
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       futureDays: 90,
       sameDayBooking: false,
-      daysInAdvance: 2
+      daysInAdvance: 2,
+      isChangeRequest: false
     },
     // Test Case 3: User booking conflict
     {
@@ -202,7 +211,8 @@ if (typeof require !== 'undefined' && require.main === module) {
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       futureDays: 90,
       sameDayBooking: false,
-      daysInAdvance: 2
+      daysInAdvance: 2,
+      isChangeRequest: false
     },
     // Test Case 4: Day not available for hosting
     {
@@ -213,7 +223,8 @@ if (typeof require !== 'undefined' && require.main === module) {
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday"],
       futureDays: 90,
       sameDayBooking: false,
-      daysInAdvance: 2
+      daysInAdvance: 2,
+      isChangeRequest: false
     },
     // Test Case 5: Insufficient advance notice
     {
@@ -224,7 +235,8 @@ if (typeof require !== 'undefined' && require.main === module) {
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       futureDays: 90,
       sameDayBooking: false,
-      daysInAdvance: 5
+      daysInAdvance: 5,
+      isChangeRequest: false
     },
     // Test Case 6: Exceeds future booking limit
     {
@@ -235,7 +247,8 @@ if (typeof require !== 'undefined' && require.main === module) {
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       futureDays: 30,
       sameDayBooking: false,
-      daysInAdvance: 2
+      daysInAdvance: 2,
+      isChangeRequest: false
     },
     // Test Case 7: Same-day booking not allowed
     {
@@ -246,7 +259,8 @@ if (typeof require !== 'undefined' && require.main === module) {
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       futureDays: 90,
       sameDayBooking: false,
-      daysInAdvance: 0
+      daysInAdvance: 0,
+      isChangeRequest: false
     },
     // Test Case 8: Invalid date format
     {
@@ -257,7 +271,8 @@ if (typeof require !== 'undefined' && require.main === module) {
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       futureDays: 90,
       sameDayBooking: false,
-      daysInAdvance: 2
+      daysInAdvance: 2,
+      isChangeRequest: false
     },
     // Test Case 9: Invalid additional nights
     {
@@ -268,7 +283,8 @@ if (typeof require !== 'undefined' && require.main === module) {
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       futureDays: 90,
       sameDayBooking: false,
-      daysInAdvance: 2
+      daysInAdvance: 2,
+      isChangeRequest: false
     },
     // Test Case 10: Multiple nights with mixed conflicts
     {
@@ -279,7 +295,20 @@ if (typeof require !== 'undefined' && require.main === module) {
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       futureDays: 90,
       sameDayBooking: false,
-      daysInAdvance: 2
+      daysInAdvance: 2,
+      isChangeRequest: false
+    },
+    // Test Case 11: Change request - user can book over their own existing bookings
+    {
+      selectedDate: "2025-12-15",
+      additionalNights: 3,
+      booking: ["2025-12-01", "2025-12-02", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-10", "2025-12-11", "2025-12-20", "2025-12-21"],
+      userBooking: ["2025-12-08", "2025-12-09", "2025-12-15", "2025-12-16"],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      futureDays: 90,
+      sameDayBooking: false,
+      daysInAdvance: 2,
+      isChangeRequest: true
     }
   ];
 
