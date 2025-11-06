@@ -12,7 +12,8 @@ The script accepts a JSON object with the following properties:
 
 - **selectedDate** (string): The starting date for additional nights in YYYY-MM-DD format
 - **additionalNights** (number): The number of additional nights to check for availability (integer)
-- **isChangeRequest** (boolean): Whether this is a change request for existing booking (true/false). If true, the function will automatically identify and exclude the original booking dates from conflict checking using the selectedDate to match the booking's checkIn date
+- **isChangeRequest** (boolean): Whether this is a change request for existing booking (true/false). If true, the `currentBooking` parameter must be provided to identify the original booking to exclude from conflict checking
+- **currentBooking** (object): Required when `isChangeRequest` is true. An object with `checkIn` and `checkout` properties (YYYY-MM-DD format) representing the original booking dates to exclude from conflict checking
 - **allBookings** (array): List of existing future booking ranges, each as an object with `checkIn` and `checkout` properties (YYYY-MM-DD format)
 - **userBooking** (array): List of current user's future booking ranges, each as an object with `checkIn` and `checkout` properties (YYYY-MM-DD format)
 - **daysAvailableToHost** (array): List of days of the week when hosting is available (e.g., ["Monday", "Tuesday", "Wednesday"])
@@ -350,6 +351,7 @@ scripts/
   "selectedDate": "2025-12-08",
   "additionalNights": 2,
   "isChangeRequest": true,
+  "currentBooking": {"checkIn": "2025-12-08", "checkout": "2025-12-10"},
   "allBookings": [
     {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
     {"checkIn": "2025-12-12", "checkout": "2025-12-14"},
@@ -380,6 +382,7 @@ scripts/
   "selectedDate": "2025-12-08",
   "additionalNights": 5,
   "isChangeRequest": true,
+  "currentBooking": {"checkIn": "2025-12-08", "checkout": "2025-12-10"},
   "allBookings": [
     {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
     {"checkIn": "2025-12-12", "checkout": "2025-12-14"},
@@ -410,6 +413,7 @@ scripts/
   "selectedDate": "2025-12-15",
   "additionalNights": 2,
   "isChangeRequest": true,
+  "currentBooking": {"checkIn": "2025-12-08", "checkout": "2025-12-10"},
   "allBookings": [
     {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
     {"checkIn": "2025-12-12", "checkout": "2025-12-14"},
@@ -519,6 +523,7 @@ scripts/
   "selectedDate": "2025-12-08",
   "additionalNights": 10,
   "isChangeRequest": true,
+  "currentBooking": {"checkIn": "2025-12-08", "checkout": "2025-12-10"},
   "allBookings": [
     {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
     {"checkIn": "2025-12-20", "checkout": "2025-12-22"}

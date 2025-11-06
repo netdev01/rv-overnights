@@ -243,6 +243,7 @@ const testCases = [
       selectedDate: "2025-12-08",
       additionalNights: 2,
       isChangeRequest: true,
+      currentBooking: {"checkIn": "2025-12-08", "checkout": "2025-12-10"},
       allBookings: [
         {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
         {"checkIn": "2025-12-12", "checkout": "2025-12-14"},
@@ -268,6 +269,7 @@ const testCases = [
       selectedDate: "2025-12-08",
       additionalNights: 5,
       isChangeRequest: true,
+      currentBooking: {"checkIn": "2025-12-08", "checkout": "2025-12-10"},
       allBookings: [
         {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
         {"checkIn": "2025-12-12", "checkout": "2025-12-14"},
@@ -293,6 +295,7 @@ const testCases = [
       selectedDate: "2025-12-15",
       additionalNights: 2,
       isChangeRequest: true,
+      currentBooking: {"checkIn": "2025-12-08", "checkout": "2025-12-10"},
       allBookings: [
         {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
         {"checkIn": "2025-12-12", "checkout": "2025-12-14"},
@@ -383,6 +386,7 @@ const testCases = [
       selectedDate: "2025-12-08",
       additionalNights: 10,
       isChangeRequest: true,
+      currentBooking: {"checkIn": "2025-12-08", "checkout": "2025-12-10"},
       allBookings: [
         {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
         {"checkIn": "2025-12-20", "checkout": "2025-12-22"}

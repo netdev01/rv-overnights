@@ -10,50 +10,63 @@ function checkAdditionalNightsAvailable(input) {
     if (!input.selectedDate || !isValidDateString(input.selectedDate)) {
       status = false;
       errorMessage = "Invalid selected date format. Expected YYYY-MM-DD";
+      return { status, errorMessage };
     }
 
     if (!Number.isInteger(input.additionalNights) || input.additionalNights < 1) {
       status = false;
       errorMessage = "Additional nights must be a positive integer";
+      return { status, errorMessage };
     }
 
     if (typeof input.isChangeRequest !== 'boolean') {
       status = false;
       errorMessage = "isChangeRequest must be a boolean";
+      return { status, errorMessage };
+    }
+
+    if (input.isChangeRequest) {
+      if (!input.currentBooking || !input.currentBooking.checkIn || !input.currentBooking.checkout ||
+          !isValidDateString(input.currentBooking.checkIn) || !isValidDateString(input.currentBooking.checkout)) {
+        status = false;
+        errorMessage = "currentBooking must be provided for change requests and must have valid checkIn and checkout dates in YYYY-MM-DD format";
+        return { status, errorMessage };
+      }
     }
 
     if (!Array.isArray(input.allBookings)) {
       status = false;
       errorMessage = "allBookings must be an array of booking objects";
+      return { status, errorMessage };
     }
 
     if (!Array.isArray(input.userBooking)) {
       status = false;
       errorMessage = "userBooking must be an array of booking objects";
+      return { status, errorMessage };
     }
 
     if (!Array.isArray(input.daysAvailableToHost)) {
       status = false;
       errorMessage = "Days available to host must be an array of day names";
+      return { status, errorMessage };
     }
 
     if (!Number.isInteger(input.futureDays) || input.futureDays < 0) {
       status = false;
       errorMessage = "Future days must be a non-negative integer";
+      return { status, errorMessage };
     }
 
     if (typeof input.sameDayBooking !== 'boolean') {
       status = false;
       errorMessage = "Same day booking must be a boolean";
+      return { status, errorMessage };
     }
 
     if (!Number.isInteger(input.daysInAdvance) || input.daysInAdvance < 0) {
       status = false;
       errorMessage = "Days in advance must be a non-negative integer";
-    }
-
-    // If any validation failed, return early
-    if (!status) {
       return { status, errorMessage };
     }
 
@@ -108,17 +121,14 @@ function checkAdditionalNightsAvailable(input) {
       dates.forEach(date => flatUserBookings.add(date));
     }
 
-    // For change requests, exclude the original booking dates from conflict checking
+    // For change requests, exclude the current booking dates from conflict checking
     if (input.isChangeRequest) {
-      const originalBooking = input.userBooking.find(booking => booking.checkIn === input.selectedDate);
-      if (originalBooking) {
-        const originalDates = generateDateRange(originalBooking.checkIn, originalBooking.checkout);
-        // Remove original booking dates from both sets to allow modification
-        originalDates.forEach(date => {
-          flatAllBookings.delete(date);
-          flatUserBookings.delete(date);
-        });
-      }
+      const originalDates = generateDateRange(input.currentBooking.checkIn, input.currentBooking.checkout);
+      // Remove current booking dates from both sets to allow modification
+      originalDates.forEach(date => {
+        flatAllBookings.delete(date);
+        flatUserBookings.delete(date);
+      });
     }
 
     // Generate all dates to check
@@ -138,27 +148,25 @@ function checkAdditionalNightsAvailable(input) {
       if (!input.daysAvailableToHost.includes(dayName)) {
         status = false;
         errorMessage = `Hosting not available on ${dayName}`;
-        break;
+        return { status, errorMessage };
       }
 
       // Check existing bookings
       if (flatAllBookings.has(dateString)) {
         status = false;
         errorMessage = `Booking conflict: ${dateString} is already booked`;
-        break;
+        return { status, errorMessage };
       }
 
       // Check user bookings
       if (flatUserBookings.has(dateString)) {
         status = false;
         errorMessage = `You already have a booking on ${dateString}`;
-        break;
+        return { status, errorMessage };
       }
     }
 
-    // All checks passed - status remains true
     return { status, errorMessage };
-
   } catch (error) {
     status = false;
     errorMessage = `Unexpected error: ${error.message}`;
