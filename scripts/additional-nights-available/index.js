@@ -1,0 +1,208 @@
+// Server script for checking additional nights availability
+// Compatible with Bubble's toolbox plugin
+
+function checkAdditionalNightsAvailable(input) {
+  let status = true;
+  let errorMessage = "";
+
+  try {
+    // Validate input parameters
+    if (!input.selectedDate || !isValidDateString(input.selectedDate)) {
+      status = false;
+      errorMessage = "Invalid selected date format. Expected YYYY-MM-DD";
+    }
+
+    if (!Number.isInteger(input.additionalNights) || input.additionalNights < 1) {
+      status = false;
+      errorMessage = "Additional nights must be a positive integer";
+    }
+
+    if (typeof input.isChangeRequest !== 'boolean') {
+      status = false;
+      errorMessage = "isChangeRequest must be a boolean";
+    }
+
+    if (!Array.isArray(input.allBookings)) {
+      status = false;
+      errorMessage = "allBookings must be an array of booking objects";
+    }
+
+    if (!Array.isArray(input.userBooking)) {
+      status = false;
+      errorMessage = "userBooking must be an array of booking objects";
+    }
+
+    if (!Array.isArray(input.daysAvailableToHost)) {
+      status = false;
+      errorMessage = "Days available to host must be an array of day names";
+    }
+
+    if (!Number.isInteger(input.futureDays) || input.futureDays < 0) {
+      status = false;
+      errorMessage = "Future days must be a non-negative integer";
+    }
+
+    if (typeof input.sameDayBooking !== 'boolean') {
+      status = false;
+      errorMessage = "Same day booking must be a boolean";
+    }
+
+    if (!Number.isInteger(input.daysInAdvance) || input.daysInAdvance < 0) {
+      status = false;
+      errorMessage = "Days in advance must be a non-negative integer";
+    }
+
+    // If any validation failed, return early
+    if (!status) {
+      return { status, errorMessage };
+    }
+
+    const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
+
+    const [selectedYear, selectedMonth, selectedDay] = input.selectedDate.split('-').map(Number);
+    const selectedDate = new Date(Date.UTC(selectedYear, selectedMonth - 1, selectedDay));
+    const lastPossibleDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + input.futureDays));
+
+    // Check if selected date is within future booking limit
+    if (selectedDate > lastPossibleDate) {
+      status = false;
+      errorMessage = `Cannot book more than ${input.futureDays} days in the future`;
+      return { status, errorMessage };
+    }
+
+    // Check advance booking requirement
+    const daysDifference = Math.ceil((selectedDate - today) / (1000 * 60 * 60 * 24));
+    if (daysDifference < input.daysInAdvance) {
+      status = false;
+      errorMessage = `Bookings must be made at least ${input.daysInAdvance} days in advance`;
+      return { status, errorMessage };
+    }
+
+    // Check same-day booking policy
+    if (!input.sameDayBooking && daysDifference === 0) {
+      status = false;
+      errorMessage = "Same-day bookings are not allowed";
+      return { status, errorMessage };
+    }
+
+    // Convert booking ranges to individual dates
+    const flatAllBookings = new Set();
+    for (const booking of input.allBookings) {
+      if (!booking.checkIn || !booking.checkout || !isValidDateString(booking.checkIn) || !isValidDateString(booking.checkout)) {
+        status = false;
+        errorMessage = "Invalid booking range format. Each booking must have checkIn and checkout dates in YYYY-MM-DD format";
+        return { status, errorMessage };
+      }
+      const dates = generateDateRange(booking.checkIn, booking.checkout);
+      dates.forEach(date => flatAllBookings.add(date));
+    }
+
+    const flatUserBookings = new Set();
+    for (const booking of input.userBooking) {
+      if (!booking.checkIn || !booking.checkout || !isValidDateString(booking.checkIn) || !isValidDateString(booking.checkout)) {
+        status = false;
+        errorMessage = "Invalid user booking range format. Each booking must have checkIn and checkout dates in YYYY-MM-DD format";
+        return { status, errorMessage };
+      }
+      const dates = generateDateRange(booking.checkIn, booking.checkout);
+      dates.forEach(date => flatUserBookings.add(date));
+    }
+
+    // For change requests, exclude the original booking dates from conflict checking
+    if (input.isChangeRequest) {
+      const originalBooking = input.userBooking.find(booking => booking.checkIn === input.selectedDate);
+      if (originalBooking) {
+        const originalDates = generateDateRange(originalBooking.checkIn, originalBooking.checkout);
+        // Remove original booking dates from both sets to allow modification
+        originalDates.forEach(date => {
+          flatAllBookings.delete(date);
+          flatUserBookings.delete(date);
+        });
+      }
+    }
+
+    // Generate all dates to check
+    const datesToCheck = [];
+    for (let i = 0; i < input.additionalNights; i++) {
+      const checkDate = new Date(selectedDate);
+      checkDate.setDate(selectedDate.getDate() + i);
+      datesToCheck.push(checkDate);
+    }
+
+    // Check each date
+    for (const date of datesToCheck) {
+      const dateString = date.toISOString().split('T')[0];
+
+      // Check day of week availability
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+      if (!input.daysAvailableToHost.includes(dayName)) {
+        status = false;
+        errorMessage = `Hosting not available on ${dayName}`;
+        break;
+      }
+
+      // Check existing bookings
+      if (flatAllBookings.has(dateString)) {
+        status = false;
+        errorMessage = `Booking conflict: ${dateString} is already booked`;
+        break;
+      }
+
+      // Check user bookings
+      if (flatUserBookings.has(dateString)) {
+        status = false;
+        errorMessage = `You already have a booking on ${dateString}`;
+        break;
+      }
+    }
+
+    // All checks passed - status remains true
+    return { status, errorMessage };
+
+  } catch (error) {
+    status = false;
+    errorMessage = `Unexpected error: ${error.message}`;
+    return { status, errorMessage };
+  }
+}
+
+// Helper function to validate date string format
+function isValidDateString(dateString) {
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(dateString)) {
+    return false;
+  }
+
+  const [year, month, day] = dateString.split('-').map(Number);
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return false;
+  }
+
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year &&
+         date.getMonth() === month - 1 &&
+         date.getDate() === day;
+}
+
+// Helper function to generate all dates in a range (inclusive of checkIn, exclusive of checkout)
+function generateDateRange(checkIn, checkout) {
+  const dates = [];
+  const [startYear, startMonth, startDay] = checkIn.split('-').map(Number);
+  const [endYear, endMonth, endDay] = checkout.split('-').map(Number);
+
+  const startDate = new Date(Date.UTC(startYear, startMonth - 1, startDay));
+  const endDate = new Date(Date.UTC(endYear, endMonth - 1, endDay));
+
+  const currentDate = new Date(startDate);
+  while (currentDate < endDate) {
+    dates.push(currentDate.toISOString().split('T')[0]);
+    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+  }
+
+  return dates;
+}
+
+// Export for Node.js environments
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { checkAdditionalNightsAvailable, isValidDateString, generateDateRange };
+}
