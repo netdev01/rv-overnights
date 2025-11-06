@@ -6,6 +6,16 @@ function checkAdditionalNightsAvailable(input) {
   let errorMessage = "";
 
   try {
+    // Handle both JSON strings and parsed objects
+    if (typeof input === 'string') {
+      try {
+        input = JSON.parse(input);
+      } catch (parseError) {
+        status = false;
+        errorMessage = "Invalid JSON input format";
+        return { status, errorMessage };
+      }
+    }
     // Validate input parameters
     if (!input.selectedDate || !isValidDateString(input.selectedDate)) {
       status = false;

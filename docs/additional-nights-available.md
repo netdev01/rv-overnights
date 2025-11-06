@@ -6,6 +6,8 @@ This script determines if additional nights are available for booking based on v
 
 The `scripts/additional-nights-available/index.js` script is designed for Bubble.io's server-side JavaScript actions. It checks if a specified number of additional nights can be booked starting from a selected date, considering existing bookings, hosting availability, and booking policies.
 
+The function accepts input as either a JavaScript object or a JSON string, making it compatible with various environments including Bubble.io where data may be passed as stringified JSON.
+
 ## Input Parameters
 
 The script accepts a JSON object with the following properties:

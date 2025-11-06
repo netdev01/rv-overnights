@@ -404,6 +404,56 @@ const testCases = [
       status: false,
       errorMessage: "You already have a booking on 2025-12-16"
     }
+  },
+  // Test Case 18: JSON string input (Bubble.io compatibility)
+  {
+    name: "JSON string input (Bubble.io compatibility)",
+    input: JSON.stringify({
+      selectedDate: "2025-12-01",
+      additionalNights: 2,
+      isChangeRequest: true,
+      currentBooking: {"checkIn": "2025-12-01", "checkout": "2025-12-04"},
+      allBookings: [{
+        "checkIn": "2025-11-11",
+        "checkout": "2025-11-14"
+      },{
+        "checkIn": "2025-11-23",
+        "checkout": "2025-11-25"
+      },{
+        "checkIn": "2025-12-01",
+        "checkout": "2025-12-04"
+      },{
+        "checkIn": "2025-12-15",
+        "checkout": "2025-12-16"
+      }],
+      userBooking: [{
+        "checkIn": "2025-11-11",
+        "checkout": "2025-11-14"
+      },{
+        "checkIn": "2025-11-23",
+        "checkout": "2025-11-25"
+      },{
+        "checkIn": "2025-12-01",
+        "checkout": "2025-12-04"
+      }],
+      daysAvailableToHost: ["Wednesday","Monday","Sunday","Saturday","Thursday","Tuesday","Friday"],
+      futureDays: 365,
+      sameDayBooking: false,
+      daysInAdvance: 1
+    }),
+    expected: {
+      status: true,
+      errorMessage: ""
+    }
+  },
+  // Test Case 19: Invalid JSON string input
+  {
+    name: "Invalid JSON string input",
+    input: '{"selectedDate": "2025-12-01", "additionalNights": 2, invalid}',
+    expected: {
+      status: false,
+      errorMessage: "Invalid JSON input format"
+    }
   }
 ];
 
