@@ -82,7 +82,10 @@ function checkAdditionalNightsAvailable(input) {
 
     const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
 
-    const [selectedYear, selectedMonth, selectedDay] = input.selectedDate.split('-').map(Number);
+    const selectedDateParts = input.selectedDate.split('-').map(Number);
+    const selectedYear = selectedDateParts[0];
+    const selectedMonth = selectedDateParts[1];
+    const selectedDay = selectedDateParts[2];
     const selectedDate = new Date(Date.UTC(selectedYear, selectedMonth - 1, selectedDay));
     const lastPossibleDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + input.futureDays));
 
@@ -93,18 +96,20 @@ function checkAdditionalNightsAvailable(input) {
       return { status, errorMessage };
     }
 
-    // Check advance booking requirement
+    // Calculate days difference for validation checks
     const daysDifference = Math.ceil((selectedDate - today) / (1000 * 60 * 60 * 24));
-    if (daysDifference < input.daysInAdvance) {
-      status = false;
-      errorMessage = `Bookings must be made at least ${input.daysInAdvance} days in advance`;
-      return { status, errorMessage };
-    }
 
-    // Check same-day booking policy
+    // Check same-day booking policy first (before advance booking check)
     if (!input.sameDayBooking && daysDifference === 0) {
       status = false;
       errorMessage = "Same-day bookings are not allowed";
+      return { status, errorMessage };
+    }
+
+    // Check advance booking requirement
+    if (daysDifference < input.daysInAdvance) {
+      status = false;
+      errorMessage = `Bookings must be made at least ${input.daysInAdvance} days in advance`;
       return { status, errorMessage };
     }
 
@@ -191,7 +196,10 @@ function isValidDateString(dateString) {
     return false;
   }
 
-  const [year, month, day] = dateString.split('-').map(Number);
+  const dateParts = dateString.split('-').map(Number);
+  const year = dateParts[0];
+  const month = dateParts[1];
+  const day = dateParts[2];
   if (month < 1 || month > 12 || day < 1 || day > 31) {
     return false;
   }
@@ -205,8 +213,15 @@ function isValidDateString(dateString) {
 // Helper function to generate all dates in a range (inclusive of checkIn, exclusive of checkout)
 function generateDateRange(checkIn, checkout) {
   const dates = [];
-  const [startYear, startMonth, startDay] = checkIn.split('-').map(Number);
-  const [endYear, endMonth, endDay] = checkout.split('-').map(Number);
+  const startParts = checkIn.split('-').map(Number);
+  const startYear = startParts[0];
+  const startMonth = startParts[1];
+  const startDay = startParts[2];
+  
+  const endParts = checkout.split('-').map(Number);
+  const endYear = endParts[0];
+  const endMonth = endParts[1];
+  const endDay = endParts[2];
 
   const startDate = new Date(Date.UTC(startYear, startMonth - 1, startDay));
   const endDate = new Date(Date.UTC(endYear, endMonth - 1, endDay));

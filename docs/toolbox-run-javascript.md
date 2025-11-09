@@ -124,6 +124,41 @@ Bubble automatically converts dynamic data to text based on the local language. 
 
 This is not required for parameters.
 
+## ES6 Compatibility Limitations
+
+Bubble's server-side JavaScript environment has **limited ES6 support**. The following ES6 features are known to cause issues and should be avoided:
+
+### Destructuring Assignment (Not Supported)
+**❌ Avoid:**
+```javascript
+const [year, month, day] = dateString.split('-').map(Number);
+const { name, age } = user;
+```
+
+**✅ Use instead:**
+```javascript
+const dateParts = dateString.split('-').map(Number);
+const year = dateParts[0];
+const month = dateParts[1];
+const day = dateParts[2];
+
+const name = user.name;
+const age = user.age;
+```
+
+### Other ES6 Features to Test Carefully
+- **Template literals** (backticks): May work but test thoroughly
+- **Arrow functions**: Generally supported but test in server-side contexts
+- **Set/Map objects**: Works in many cases but consider using plain objects/arrays as fallback
+- **const/let**: Generally supported but `var` is the safest option
+
+### Best Practices for Bubble Server-Side Scripts
+1. Use ES5-compatible syntax for maximum compatibility
+2. Test all ES6 features in your specific Bubble environment before deploying
+3. Prefer `var` over `const`/`let` for variable declarations
+4. Avoid modern JavaScript features unless verified to work in Bubble's environment
+5. Keep code simple and compatible with older JavaScript standards
+
 # Javascript to Bubble
 
 Creates a function that sends JavaScript parameters to Bubble for dynamic data or to trigger workflow events.

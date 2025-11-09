@@ -152,14 +152,14 @@ const testCases = [
   {
     name: "Same-day booking not allowed",
     input: {
-      selectedDate: "2025-11-06",
+      selectedDate: new Date().toISOString().split('T')[0], // Today's date
       additionalNights: 1,
       isChangeRequest: false,
       allBookings: [
         {"checkIn": "2025-12-01", "checkout": "2025-12-06"}
       ],
       userBooking: [],
-      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
       futureDays: 90,
       sameDayBooking: false,
       daysInAdvance: 0
