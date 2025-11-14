@@ -8,8 +8,10 @@
 function getBlockedDates(input) {
   const data = (typeof input === 'string') ? JSON.parse(input) : input;
   console.log('Parsed input:', data);
-  const targetSpaces = (data.space || []).filter(s => s).map(s => String(s));
+  const targetSpaces = (data.spaces || []).filter(s => s).map(s => String(s));
+  const selectedSpace = (data.selectSpace != null) ? String(data.selectSpace) : null;
   console.log('Target spaces:', targetSpaces);
+  console.log('Selected space:', selectedSpace);
   const dateMap = {};
 
   // Process each block
@@ -48,7 +50,9 @@ function getBlockedDates(input) {
   // Check dates and format
   for (const dateStr in dateMap) {
     const { blockedSpaces, hasGlobal, isYearly } = dateMap[dateStr];
-    const isFullyBlocked = hasGlobal || targetSpaces.every(s => blockedSpaces.has(s));
+    const isFullyBlocked = selectedSpace
+      ? (hasGlobal || blockedSpaces.has(selectedSpace))
+      : (hasGlobal || targetSpaces.some(s => blockedSpaces.has(s)));
     if (isFullyBlocked) {
       const date = new Date(dateStr);
       const mm = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -79,6 +83,11 @@ function getBlockedDates(input) {
   const result = { datesYearly, datesNotYearly };
   console.log('Final result:', result);
   return result;
+}
+
+// Export for Node.js testing (does not affect browser usage)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { getBlockedDates };
 }
 
 // Example usage for testing (run in browser console)
