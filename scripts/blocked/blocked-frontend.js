@@ -7,15 +7,7 @@
 // Note: If properties.param1 is JSON string, parse it; if it's already object, use directly
 function getBlockedDates(input) {
   // Debug: Log the raw input immediately
-  console.log('RAW INPUT RECEIVED:', input);
-  console.log('INPUT TYPE:', typeof input);
-  if (input && typeof input === 'object') {
-    console.log('INPUT KEYS:', Object.keys(input));
-  }
-
-  let data;
-
-  // Handle both JSON strings and parsed objects (match additional-nights-available approach)
+  console.log('input:', input);
   if (typeof input === 'string') {
     try {
       data = JSON.parse(input);
