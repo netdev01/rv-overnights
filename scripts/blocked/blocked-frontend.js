@@ -6,7 +6,57 @@
 
 // Note: If properties.param1 is JSON string, parse it; if it's already object, use directly
 function getBlockedDates(input) {
-  const data = (typeof input === 'string') ? JSON.parse(input) : input;
+  // Handle different input types: string (JSON), object, or Bubble property object
+  let data;
+  if (typeof input === 'string') {
+    try {
+      data = JSON.parse(input);
+    } catch (e) {
+      // If it's not valid JSON, treat as raw input
+      data = input;
+    }
+  } else if (input && typeof input === 'object') {
+    // Check for Bubble property object (has get, listProperties, etc.)
+    if (input.get && typeof input.get === 'function' && input.listProperties) {
+      // Bubble property object - try multiple methods to get the value
+      let paramValue;
+      try {
+        // Try __original method first (sometimes Bubble properties have this)
+        if (input.__original && typeof input.__original === 'function') {
+          paramValue = input.__original();
+        } else if (input.get && typeof input.get === 'string') {
+          // Some versions might return the raw value directly
+          paramValue = input.get;
+        } else {
+          // Try get() with no arguments
+          paramValue = input.get();
+        }
+
+        // If paramValue is a string, try to parse as JSON
+        if (typeof paramValue === 'string') {
+          try {
+            data = JSON.parse(paramValue);
+          } catch (jsonError) {
+            data = paramValue; // Keep as string
+          }
+        } else if (paramValue && typeof paramValue === 'object') {
+          data = paramValue; // Already an object
+        } else {
+          // If all else fails, use the original input
+          data = input;
+        }
+      } catch (e) {
+        // If all property access fails, fall back to using input as-is
+        data = input;
+      }
+    } else {
+      // Regular JavaScript object
+      data = input;
+    }
+  } else {
+    // Fallback for any other type
+    data = input || {};
+  }
   console.log('Parsed input:', data);
   const targetSpaces = (data.spaces || []).filter(s => s).map(s => String(s));
   const selectedSpace = (data.selectSpace != null) ? String(data.selectSpace) : null;
@@ -108,4 +158,50 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // For Bubble Run Javascript action: with param1 set to the JSON string
 // const result = getBlockedDates(properties.param1);
-// bubble_fn_blocked_dates({datesYearly: result.datesYearly, datesNotYearly: result.datesNotYearly});  // js2b element named 'blocked_dates' with outputs datesYearly, datesNotYearly
+// bubble_fn_blocked_dates({datesYearly: result.datesYearly, datesNotYearly: result.datesNotYearly});
+
+// Helper function for Bubble Run Javascript - handles Bubble's property wrapper
+function getBlockedDatesFromBubbleParam(paramValue) {
+  let inputData;
+
+  // Try multiple approaches to extract the JSON data from Bubble's property wrapper
+  try {
+    // Approach 1: If it's already the parsed object
+    if (paramValue && typeof paramValue === 'object' && !paramValue.get) {
+      inputData = paramValue;
+    }
+    // Approach 2: If it's a JSON string
+    else if (typeof paramValue === 'string') {
+      inputData = JSON.parse(paramValue);
+    }
+    // Approach 3: If it's a Bubble property object, try to extract the value
+    else if (paramValue && typeof paramValue === 'object' && paramValue.get) {
+      let extractedValue;
+      // Try different methods based on Bubble version
+      if (typeof paramValue.get === 'function') {
+        extractedValue = paramValue.get();
+      } else if (typeof paramValue.get === 'string') {
+        extractedValue = paramValue.get;
+      } else if (paramValue.__original && typeof paramValue.__original === 'function') {
+        extractedValue = paramValue.__original();
+      }
+
+      // Parse the extracted value
+      if (typeof extractedValue === 'string') {
+        inputData = JSON.parse(extractedValue);
+      } else if (extractedValue && typeof extractedValue === 'object') {
+        inputData = extractedValue;
+      }
+    }
+  } catch (e) {
+    console.error('Error parsing Bubble parameter:', e);
+    // Emergency fallback - use the raw value
+    inputData = paramValue;
+  }
+
+  return getBlockedDates(inputData);
+}
+
+// Usage in Bubble:
+// const result = getBlockedDatesFromBubbleParam(properties.param1);
+// bubble_fn_blocked_dates({datesYearly: result.datesYearly, datesNotYearly: result.datesNotYearly});
