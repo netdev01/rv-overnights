@@ -6,6 +6,7 @@ function checkAdditionalNightsAvailable(input) {
 
   let status = true;
   let errorMessage = "";
+  let message = "";
 
   try {
     // Handle both JSON strings and parsed objects
@@ -15,26 +16,27 @@ function checkAdditionalNightsAvailable(input) {
       } catch (parseError) {
         status = false;
         errorMessage = "Invalid JSON input format";
-        return { status, errorMessage };
+        return { status, message, errorMessage };
       }
     }
     // Validate input parameters
     if (!input.selectedDate || !isValidDateString(input.selectedDate)) {
       status = false;
       errorMessage = "Invalid selected date format. Expected YYYY-MM-DD";
-      return { status, errorMessage };
+      return { status, message, errorMessage };
     }
 
     if (!Number.isInteger(input.additionalNights) || input.additionalNights < 1) {
       status = false;
+
       errorMessage = "Additional nights must be a positive integer";
-      return { status, errorMessage };
+      return { status, message, errorMessage };
     }
 
     if (typeof input.isChangeRequest !== 'boolean') {
       status = false;
       errorMessage = "isChangeRequest must be a boolean";
-      return { status, errorMessage };
+      return { status, message, errorMessage };
     }
 
     if (input.isChangeRequest) {
@@ -42,44 +44,44 @@ function checkAdditionalNightsAvailable(input) {
           !isValidDateString(input.currentBooking.checkIn) || !isValidDateString(input.currentBooking.checkout)) {
         status = false;
         errorMessage = "currentBooking must be provided for change requests and must have valid checkIn and checkout dates in YYYY-MM-DD format";
-        return { status, errorMessage };
+        return { status, message, errorMessage };
       }
     }
 
     if (!Array.isArray(input.allBookings)) {
       status = false;
       errorMessage = "allBookings must be an array of booking objects";
-      return { status, errorMessage };
+      return { status, message, errorMessage };
     }
 
     if (!Array.isArray(input.userBooking)) {
       status = false;
       errorMessage = "userBooking must be an array of booking objects";
-      return { status, errorMessage };
+      return { status, message, errorMessage };
     }
 
     if (!Array.isArray(input.daysAvailableToHost)) {
       status = false;
       errorMessage = "Days available to host must be an array of day names";
-      return { status, errorMessage };
+      return { status, message, errorMessage };
     }
 
     if (!Number.isInteger(input.futureDays) || input.futureDays < 0) {
       status = false;
       errorMessage = "Future days must be a non-negative integer";
-      return { status, errorMessage };
+      return { status, message, errorMessage };
     }
 
     if (typeof input.sameDayBooking !== 'boolean') {
       status = false;
       errorMessage = "Same day booking must be a boolean";
-      return { status, errorMessage };
+      return { status, message, errorMessage };
     }
 
     if (!Number.isInteger(input.daysInAdvance) || input.daysInAdvance < 0) {
       status = false;
       errorMessage = "Days in advance must be a non-negative integer";
-      return { status, errorMessage };
+      return { status, message, errorMessage };
     }
 
     const selectedDateParts = input.selectedDate.split('-').map(Number);
@@ -91,31 +93,74 @@ function checkAdditionalNightsAvailable(input) {
     const selectedDate = new Date(Date.UTC(selectedYear, selectedMonth - 1, selectedDay));
     const lastPossibleDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + input.futureDays));
 
-    // Parse blocked lists into sets
-    const blockedYearlySet = new Set(); // MM/DD strings (yearly blocks)
-    const blockedNotYearSet = new Set(); // ISO YYYY-MM-DD strings (non-yearly blocks)
+    // Parse and validate blocked lists into sets
+    const blockedYearlySet = new Set(); // "MM-DD" strings (yearly blocks)
+    const blockedNotYearSet = new Set(); // "YYYY-MM-DD" strings (non-yearly blocks)
+    const invalidYearlyEntries = [];
+    const invalidNotYearlyEntries = [];
+
+    // Validate blockedYearly: MM-DD format
     if (Array.isArray(input.blockedYearly)) {
-      input.blockedYearly.forEach(s => blockedYearlySet.add(String(s)));
+      input.blockedYearly.forEach(s => {
+        const str = String(s).trim();
+        if (!/^\d{2}-\d{2}$/.test(str)) {
+          invalidYearlyEntries.push(str);
+          return;
+        }
+        const [mm, dd] = str.split('-').map(Number);
+        if (mm < 1 || mm > 12 || dd < 1 || dd > 31) {
+          invalidYearlyEntries.push(str);
+          return;
+        }
+        // Valid - add regardless of date validity (some months have fewer days)
+        blockedYearlySet.add(`${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`);
+      });
     }
+
+    // Validate blockedNoYearly: YYYY-MM-DD format
     if (Array.isArray(input.blockedNoYearly)) {
       input.blockedNoYearly.forEach(s => {
-        const parts = String(s).split('/'); // [MM, DD, YY]
-        if (parts.length === 3) {
-          const mm = Number(parts[0]);
-          const dd = Number(parts[1]);
-          const yy = Number(parts[2]);
-          const yyyy = 2000 + yy; // blocked-server uses 20YY
-          const iso = new Date(Date.UTC(yyyy, mm - 1, dd)).toISOString().split('T')[0];
-          blockedNotYearSet.add(iso);
+        const str = String(s).trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+          invalidNotYearlyEntries.push(str);
+          return;
         }
+        const [year, month, day] = str.split('-').map(Number);
+        if (month < 1 || month > 12 || day < 1 || day > 31) {
+          invalidNotYearlyEntries.push(str);
+          return;
+        }
+        // Validate full date
+        const testDate = new Date(year, month - 1, day);
+        if (testDate.getFullYear() !== year ||
+            testDate.getMonth() !== month - 1 ||
+            testDate.getDate() !== day) {
+          invalidNotYearlyEntries.push(str);
+          return;
+        }
+        // Valid - add as string
+        blockedNotYearSet.add(str);
       });
+    }
+
+    // Record validation errors in errorMessage and set user message
+    if (invalidYearlyEntries.length > 0 || invalidNotYearlyEntries.length > 0) {
+      const errors = [];
+      if (invalidYearlyEntries.length > 0) {
+        errors.push(`Ignored invalid blockedYearly entries: [${invalidYearlyEntries.map(s => `'${s}'`).join(', ')}]`);
+      }
+      if (invalidNotYearlyEntries.length > 0) {
+        errors.push(`Ignored invalid blockedNoYearly entries: [${invalidNotYearlyEntries.map(s => `'${s}'`).join(', ')}]`);
+      }
+      errorMessage += (errorMessage ? ' ' : '') + errors.join(' ');
+      message = "Some blocked dates were ignored due to invalid format";
     }
 
     // Check if selected date is within future booking limit
     if (selectedDate > lastPossibleDate) {
       status = false;
       errorMessage = `Cannot book more than ${input.futureDays} days in the future`;
-      return { status, errorMessage };
+      return { status, message, errorMessage };
     }
 
     // Generate all dates to check (includes selectedDate + additionalNights nights)
@@ -131,11 +176,11 @@ function checkAdditionalNightsAvailable(input) {
       const dateString = date.toISOString().split('T')[0];
       const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
       const dd = String(date.getUTCDate()).padStart(2, '0');
-      const mmdd = `${mm}/${dd}`;
-      if (blockedNotYearSet.has(dateString) || blockedYearlySet.has(mmdd)) {
+      const mmddHyphen = `${mm}-${dd}`; // blockedYearlySet uses hyphen format
+      if (blockedNotYearSet.has(dateString) || blockedYearlySet.has(mmddHyphen)) {
         status = false;
-        errorMessage = `Date blocked: ${dateString}`;
-        return { status, errorMessage };
+        message = `Date blocked: ${dateString}`;
+        return { status, message, errorMessage };
       }
     }
 
@@ -216,11 +261,12 @@ function checkAdditionalNightsAvailable(input) {
       }
     }
 
-    return { status, errorMessage };
+    return { status, message, errorMessage };
   } catch (error) {
     status = false;
+    message = "An unexpected error occurred";
     errorMessage = `Unexpected error: ${error.message}`;
-    return { status, errorMessage };
+    return { status, message, errorMessage };
   }
 }
 

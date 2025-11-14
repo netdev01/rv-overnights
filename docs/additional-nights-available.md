@@ -29,7 +29,8 @@ The script accepts a JSON object with the following properties:
 
 Returns a JSON object with:
 - **status** (boolean): `true` if all additional nights are available, `false` otherwise
-- **errorMessage** (string): Description of why the booking is not available (empty string if status is true)
+- **message** (string): User-friendly message (e.g., for date blocking: "Date blocked: YYYY-MM-DD"). Empty on success or general errors.
+- **errorMessage** (string): Technical details and validation errors. Empty on success.
 
 **Note**: The JSON object return format `{status, errorMessage}` is a requirement for Bubble.io Toolbox's Server Script action.
 

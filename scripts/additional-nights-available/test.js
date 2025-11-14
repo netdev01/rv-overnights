@@ -15,17 +15,14 @@ function futureISO(days) {
 function futureMMDDYY(days) {
   const d = new Date();
   d.setUTCDate(d.getUTCDate() + days);
-  const mm = String(d.getUTCMonth() + 1).padStart(2,'0');
-  const dd = String(d.getUTCDate()).padStart(2,'0');
-  const yy = String(d.getUTCFullYear() % 100).padStart(2,'0');
-  return `${mm}/${dd}/${yy}`;
+  return formatISO(d); // Return YYYY-MM-DD format for blockedNoYearly
 }
 function futureMMDD(days) {
   const d = new Date();
   d.setUTCDate(d.getUTCDate() + days);
   const mm = String(d.getUTCMonth() + 1).padStart(2,'0');
   const dd = String(d.getUTCDate()).padStart(2,'0');
-  return `${mm}/${dd}`;
+  return `${mm}-${dd}`; // Use hyphen for MM-DD format
 }
 
 // Comprehensive test cases covering all scenarios
@@ -539,7 +536,8 @@ const testCases = [
     },
     expected: {
       status: false,
-      errorMessage: `Date blocked: ${futureISO(30)}`
+      message: `Date blocked: ${futureISO(30)}`,
+      errorMessage: ""
     }
   },
   // Test Case 21: Blocked date (non-yearly) prevents booking
@@ -560,7 +558,8 @@ const testCases = [
     },
     expected: {
       status: false,
-      errorMessage: `Date blocked: ${futureISO(40)}`
+      message: `Date blocked: ${futureISO(40)}`,
+      errorMessage: ""
     }
   },
   // Test Case 22: Booking available when blocked lists omitted (backwards compatibility)
@@ -606,11 +605,12 @@ function runTests() {
     // Check if result matches expected
     const statusMatch = result.status === testCase.expected.status;
     const errorMatch = result.errorMessage === testCase.expected.errorMessage;
+    const messageMatch = (result.message || "") === (testCase.expected.message || "");
 
     console.log(`Expected: ${JSON.stringify(testCase.expected)}`);
     console.log(`Actual:   ${JSON.stringify(result)}`);
 
-    if (statusMatch && errorMatch) {
+    if (statusMatch && errorMatch && messageMatch) {
       console.log('✅ PASS');
       passed++;
     } else {
@@ -620,6 +620,9 @@ function runTests() {
       }
       if (!errorMatch) {
         console.log(`   Error mismatch: expected "${testCase.expected.errorMessage}", got "${result.errorMessage}"`);
+      }
+      if (!messageMatch) {
+        console.log(`   Message mismatch: expected "${testCase.expected.message}", got "${result.message}"`);
       }
       failed++;
     }
