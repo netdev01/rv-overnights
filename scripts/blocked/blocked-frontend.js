@@ -1,10 +1,6 @@
 // Frontend version of getBlockedDates for Bubble's Run Javascript action
 // This runs client-side in the browser
 
-// Frontend version of getBlockedDates for Bubble's Run Javascript action
-// Input is JSON string from properties.param1
-
-// Note: If properties.param1 is JSON string, parse it; if it's already object, use directly
 function getBlockedDates(input) {
   // Debug: Log the raw input immediately
   console.log('input:', input);
@@ -107,7 +103,8 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Example usage for testing (run in browser console)
 // const input = {
-//   "space": [1, 2],
+//   "selectedSpace": 1,
+//   "spaces": [1, 2],
 //   "blocked": [
 //     {"yearly": true, "start date": "10/01/2024", "end date": "10/02/2024"},
 //     {"yearly": true, "space": ["1"], "start date": "10/03/2025", "end date": "10/04/2025"},
@@ -123,8 +120,4 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // For Bubble Run Javascript action: with param1 set to the JSON string
 // const result = getBlockedDates(properties.param1);
-// bubble_fn_blocked_dates({datesYearly: result.datesYearly, datesNotYearly: result.datesNotYearly});
-
-// Usage in Bubble:
-// const result = getBlockedDates(properties.param1);
-// bubble_fn_blocked_dates({datesYearly: result.datesYearly, datesNotYearly: result.datesNotYearly});
+// bubble_fn_blocked_dates({"outputlist1": result.datesYearly, "outputlist2": result.datesNotYearly});
