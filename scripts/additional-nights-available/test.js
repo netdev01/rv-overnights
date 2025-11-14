@@ -583,6 +583,50 @@ const testCases = [
       status: true,
       errorMessage: ""
     }
+  },
+  // Test Case 23: Blocked date with some malformed entries present
+  {
+    name: "Blocked date with some malformed entries present",
+    input: {
+      selectedDate: futureISO(40),
+      additionalNights: 1,
+      isChangeRequest: false,
+      allBookings: [],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      futureDays: 365,
+      sameDayBooking: true,
+      daysInAdvance: 0,
+      blockedYearly: [futureMMDD(40)], // Valid blocked entry
+      blockedNoYearly: ["invalid-format", "2025-13-01"] // Malformed entries
+    },
+    expected: {
+      status: false,
+      message: `Date blocked: ${futureISO(40)}`,
+      errorMessage: `Ignored invalid blockedNoYearly entries: ['invalid-format', '2025-13-01']`
+    }
+  },
+  // Test Case 24: Blocked date with some malformed yearly entries present
+  {
+    name: "Blocked date with some malformed yearly entries present",
+    input: {
+      selectedDate: futureISO(50),
+      additionalNights: 1,
+      isChangeRequest: false,
+      allBookings: [],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      futureDays: 365,
+      sameDayBooking: true,
+      daysInAdvance: 0,
+      blockedYearly: ["33-01", "99-99"], // Malformed yearly entries
+      blockedNoYearly: [futureMMDDYY(50)] // Valid non-yearly that should block
+    },
+    expected: {
+      status: false,
+      message: `Date blocked: ${futureISO(50)}`,
+      errorMessage: `Ignored invalid blockedYearly entries: ['33-01', '99-99']`
+    }
   }
 ];
 

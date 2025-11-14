@@ -8,6 +8,8 @@ The `scripts/additional-nights-available/index.js` script is designed for Bubble
 
 The function accepts input as either a JavaScript object or a JSON string, making it compatible with various environments including Bubble.io where data may be passed as stringified JSON.
 
+When malformed blocked entries are present along with valid ones, the malformed entries are silently ignored but logged in the technical errorMessage. The user-facing message (if booking succeeds) or blocking reason (if fails) remains concise.
+
 ## Input Parameters
 
 The script accepts a JSON object with the following properties:
