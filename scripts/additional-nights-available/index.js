@@ -2,6 +2,8 @@
 // Compatible with Bubble's toolbox plugin
 
 function checkAdditionalNightsAvailable(input) {
+  console.log('Input received:', JSON.stringify(input, null, 2));
+
   let status = true;
   let errorMessage = "";
 
@@ -80,12 +82,12 @@ function checkAdditionalNightsAvailable(input) {
       return { status, errorMessage };
     }
 
-    const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
-
     const selectedDateParts = input.selectedDate.split('-').map(Number);
     const selectedYear = selectedDateParts[0];
     const selectedMonth = selectedDateParts[1];
     const selectedDay = selectedDateParts[2];
+
+    const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
     const selectedDate = new Date(Date.UTC(selectedYear, selectedMonth - 1, selectedDay));
     const lastPossibleDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + input.futureDays));
 
@@ -146,9 +148,9 @@ function checkAdditionalNightsAvailable(input) {
       });
     }
 
-    // Generate all dates to check
+    // Generate all dates to check (includes selectedDate + additionalNights nights)
     const datesToCheck = [];
-    for (let i = 0; i < input.additionalNights; i++) {
+    for (let i = 0; i <= input.additionalNights; i++) {
       const checkDate = new Date(selectedDate);
       checkDate.setDate(selectedDate.getDate() + i);
       datesToCheck.push(checkDate);
@@ -166,17 +168,17 @@ function checkAdditionalNightsAvailable(input) {
         return { status, errorMessage };
       }
 
+      // Check user bookings first
+      if (flatUserBookings.has(dateString)) {
+        status = false;
+        errorMessage = `You already have a booking on ${dateString}`;
+        return { status, errorMessage };
+      }
+
       // Check existing bookings
       if (flatAllBookings.has(dateString)) {
         status = false;
         errorMessage = `Booking conflict: ${dateString} is already booked`;
-        return { status, errorMessage };
-      }
-
-      // Check user bookings
-      if (flatUserBookings.has(dateString)) {
-        status = false;
-        errorMessage = `You already have a booking on ${dateString}`;
         return { status, errorMessage };
       }
     }

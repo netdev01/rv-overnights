@@ -236,6 +236,47 @@ const testCases = [
       errorMessage: "Booking conflict: 2025-12-18 is already booked"
     }
   },
+  // Test Case 20: Additional nights semantics (1 additional = 2 nights)
+  {
+    name: "Additional nights semantics (1 additional = checks selectedDate + one more)",
+    input: {
+      selectedDate: "2025-11-30",
+      additionalNights: 1,
+      isChangeRequest: false,
+      allBookings: [],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      futureDays: 90,
+      sameDayBooking: false,
+      daysInAdvance: 2
+    },
+    expected: {
+      status: true,
+      errorMessage: ""
+    }
+  },
+  // Test Case 21: Additional nights with conflict on extra night
+  {
+    name: "Additional nights with conflict on extra night",
+    input: {
+      selectedDate: "2025-11-30",
+      additionalNights: 1,
+      isChangeRequest: false,
+      allBookings: [],
+      userBooking: [{
+        checkIn: "2025-12-01",
+        checkout: "2025-12-05"
+      }],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      futureDays: 90,
+      sameDayBooking: false,
+      daysInAdvance: 2
+    },
+    expected: {
+      status: false,
+      errorMessage: "You already have a booking on 2025-12-01"
+    }
+  },
   // Test Case 11: Change request - user can book over their own existing bookings
   {
     name: "Change request - user can book over their own existing bookings",

@@ -13,7 +13,7 @@ The function accepts input as either a JavaScript object or a JSON string, makin
 The script accepts a JSON object with the following properties:
 
 - **selectedDate** (string): The starting date for additional nights in YYYY-MM-DD format
-- **additionalNights** (number): The number of additional nights to check for availability (integer)
+- **additionalNights** (number): The number of additional nights beyond the selectedDate to check for availability (integer). Total nights checked = additionalNights + 1.
 - **isChangeRequest** (boolean): Whether this is a change request for existing booking (true/false). If true, the `currentBooking` parameter must be provided to identify the original booking to exclude from conflict checking
 - **currentBooking** (object): Required when `isChangeRequest` is true. An object with `checkIn` and `checkout` properties (YYYY-MM-DD format) representing the original booking dates to exclude from conflict checking
 - **allBookings** (array): List of existing future booking ranges, each as an object with `checkIn` and `checkout` properties (YYYY-MM-DD format)

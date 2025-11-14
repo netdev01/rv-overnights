@@ -1,0 +1,50 @@
+{
+    selectedDate: "2025-12-15",
+    additionalNights: 3,
+    isChangeRequest: false,
+    allBookings: [
+    {"checkIn": "2025-12-01", "checkout": "2025-12-06"},
+    {"checkIn": "2025-12-10", "checkout": "2025-12-12"},
+    {"checkIn": "2025-12-20", "checkout": "2025-12-22"}
+    ],
+    userBooking: [
+    {"checkIn": "2025-12-08", "checkout": "2025-12-10"}
+    ],
+    daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    futureDays: 90,
+    sameDayBooking: false,
+    daysInAdvance: 2
+}
+
+{
+    selectedDate: "2025-12-14",
+    additionalNights: 3,
+    isChangeRequest: true,
+    allBookings: [{
+    "checkIn": "2025-11-11", 
+    "checkout": "2025-11-14"
+},{
+    "checkIn": "2025-11-23", 
+    "checkout": "2025-11-25"
+},{
+    "checkIn": "2025-12-01", 
+    "checkout": "2025-12-04"
+},{
+    "checkIn": "2025-12-15", 
+    "checkout": "2025-12-16"
+}],
+    userBooking: [{
+    "checkIn": "2025-11-11", 
+    "checkout": "2025-11-14"
+},{
+    "checkIn": "2025-11-23", 
+    "checkout": "2025-11-25"
+},{
+    "checkIn": "2025-12-01", 
+    "checkout": "2025-12-04"
+}],
+    daysAvailableToHost: ["Wednesday","Monday","Sunday","Saturday","Thursday","Tuesday","Friday"],
+    futureDays: 365,
+    sameDayBooking: false,
+    daysInAdvance: 1
+}
