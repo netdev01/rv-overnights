@@ -22,6 +22,7 @@ The script accepts a JSON object with the following properties:
 - **futureDays** (number): Maximum number of days in the future that can be booked (integer)
 - **sameDayBooking** (boolean): Whether same-day bookings are allowed (true/false)
 - **daysInAdvance** (number): Minimum number of days required in advance for booking (integer)
+- **blocked** (object): Optional processed blocked dates from scripts/blocked/blocked-server.js. Object with `outputlist1` (array of "MM/DD" strings for yearly blocks) and `outputlist2` (array of "MM/DD/YY" strings for non-yearly blocks)
 
 ## Output
 
@@ -42,12 +43,23 @@ The script validates availability by checking:
 5. **Existing Bookings**: Prevents double-booking on dates already reserved
 6. **User Booking Conflicts**: Prevents users from booking dates they already have reserved
 
+**Note**: The number of nights checked is `additionalNights + 1`, including the selectedDate and the following additionalNights dates.
+
 ## Implementation Notes
 
 - All dates should be in YYYY-MM-DD format
 - Day names should be full names (Monday, Tuesday, etc.)
 - The script assumes the current date is today when checking advance booking requirements
 - User bookings take precedence over general bookings for the same user
+
+## Test Suite Notes
+
+The test suite in `scripts/additional-nights-available/test.js` includes helper functions for time-safe testing:
+- `futureISO(days)`: Returns a future date string (YYYY-MM-DD) X days from now
+- `futureMMDDYY(days)`: Returns a future date string (MM/DD/YY) X days from now
+- `futureMMDD(days)`: Returns a future date string (MM/DD) X days from now
+
+When running tests much later, if any fail due to dates being too far past, use these helper functions to generate current future dates instead of hardcoded ones to avoid time-dependency failures. Most test cases use fixed historical dates (e.g., "2025-12-15") which are intentionally in the past to test past/future booking logic.
 
 ## File Structure
 
@@ -346,7 +358,7 @@ scripts/
 }
 ```
 
-### Test Case 11: Change request - user can book over their own existing bookings
+### Test Case 15: Change request - user can book over their own existing bookings
 **Input:**
 ```json
 {

@@ -91,11 +91,55 @@ function checkAdditionalNightsAvailable(input) {
     const selectedDate = new Date(Date.UTC(selectedYear, selectedMonth - 1, selectedDay));
     const lastPossibleDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + input.futureDays));
 
+    // Parse blocked lists into sets
+    const blockedYearlySet = new Set(); // MM/DD strings (yearly blocks)
+    const blockedNotYearSet = new Set(); // ISO YYYY-MM-DD strings (non-yearly blocks)
+    if (input.blocked) {
+      // Accept processed output from blocked-server: { outputlist1: ["MM/DD"], outputlist2: ["MM/DD/YY"] }
+      if (Array.isArray(input.blocked.outputlist1)) {
+        input.blocked.outputlist1.forEach(s => blockedYearlySet.add(String(s)));
+      }
+      if (Array.isArray(input.blocked.outputlist2)) {
+        input.blocked.outputlist2.forEach(s => {
+          const parts = String(s).split('/'); // [MM, DD, YY]
+          if (parts.length === 3) {
+            const mm = Number(parts[0]);
+            const dd = Number(parts[1]);
+            const yy = Number(parts[2]);
+            const yyyy = 2000 + yy; // blocked-server uses 20YY
+            const iso = new Date(Date.UTC(yyyy, mm - 1, dd)).toISOString().split('T')[0];
+            blockedNotYearSet.add(iso);
+          }
+        });
+      }
+    }
+
     // Check if selected date is within future booking limit
     if (selectedDate > lastPossibleDate) {
       status = false;
       errorMessage = `Cannot book more than ${input.futureDays} days in the future`;
       return { status, errorMessage };
+    }
+
+    // Generate all dates to check (includes selectedDate + additionalNights nights)
+    const datesToCheck = [];
+    for (let i = 0; i <= input.additionalNights; i++) {
+      const checkDate = new Date(selectedDate);
+      checkDate.setDate(selectedDate.getDate() + i);
+      datesToCheck.push(checkDate);
+    }
+
+    // Check blocked dates (before other checks for better error messages)
+    for (const date of datesToCheck) {
+      const dateString = date.toISOString().split('T')[0];
+      const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(date.getUTCDate()).padStart(2, '0');
+      const mmdd = `${mm}/${dd}`;
+      if (blockedNotYearSet.has(dateString) || blockedYearlySet.has(mmdd)) {
+        status = false;
+        errorMessage = `Date blocked: ${dateString}`;
+        return { status, errorMessage };
+      }
     }
 
     // Calculate days difference for validation checks
@@ -146,14 +190,6 @@ function checkAdditionalNightsAvailable(input) {
         flatAllBookings.delete(date);
         flatUserBookings.delete(date);
       });
-    }
-
-    // Generate all dates to check (includes selectedDate + additionalNights nights)
-    const datesToCheck = [];
-    for (let i = 0; i <= input.additionalNights; i++) {
-      const checkDate = new Date(selectedDate);
-      checkDate.setDate(selectedDate.getDate() + i);
-      datesToCheck.push(checkDate);
     }
 
     // Check each date

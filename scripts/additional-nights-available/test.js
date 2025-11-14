@@ -3,6 +3,31 @@
 
 const { checkAdditionalNightsAvailable } = require('./index');
 
+// Helper functions for time-safe tests
+function formatISO(d) {
+  return d.toISOString().split('T')[0];
+}
+function futureISO(days) {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() + days);
+  return formatISO(d);
+}
+function futureMMDDYY(days) {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() + days);
+  const mm = String(d.getUTCMonth() + 1).padStart(2,'0');
+  const dd = String(d.getUTCDate()).padStart(2,'0');
+  const yy = String(d.getUTCFullYear() % 100).padStart(2,'0');
+  return `${mm}/${dd}/${yy}`;
+}
+function futureMMDD(days) {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() + days);
+  const mm = String(d.getUTCMonth() + 1).padStart(2,'0');
+  const dd = String(d.getUTCDate()).padStart(2,'0');
+  return `${mm}/${dd}`;
+}
+
 // Comprehensive test cases covering all scenarios
 const testCases = [
   // Test Case 1: Available booking
@@ -494,6 +519,72 @@ const testCases = [
     expected: {
       status: false,
       errorMessage: "Invalid JSON input format"
+    }
+  },
+  // Test Case 20: Blocked date (yearly) prevents booking
+  {
+    name: "Blocked date (yearly) prevents booking",
+    input: {
+      selectedDate: futureISO(30),
+      additionalNights: 1,
+      isChangeRequest: false,
+      allBookings: [],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      futureDays: 365,
+      sameDayBooking: true,
+      daysInAdvance: 0,
+      blocked: {
+        outputlist1: [futureMMDD(30).substring(0, 5)], // MM/DD part blocked yearly
+        outputlist2: []
+      }
+    },
+    expected: {
+      status: false,
+      errorMessage: `Date blocked: ${futureISO(30)}`
+    }
+  },
+  // Test Case 21: Blocked date (non-yearly) prevents booking
+  {
+    name: "Blocked date (non-yearly) prevents booking",
+    input: {
+      selectedDate: futureISO(40),
+      additionalNights: 1,
+      isChangeRequest: false,
+      allBookings: [],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      futureDays: 365,
+      sameDayBooking: true,
+      daysInAdvance: 0,
+      blocked: {
+        outputlist1: [],
+        outputlist2: [futureMMDDYY(40)]
+      }
+    },
+    expected: {
+      status: false,
+      errorMessage: `Date blocked: ${futureISO(40)}`
+    }
+  },
+  // Test Case 22: Booking available when blocked lists omitted (backwards compatibility)
+  {
+    name: "Booking available when blocked lists omitted (backwards compatibility)",
+    input: {
+      selectedDate: futureISO(30),
+      additionalNights: 1,
+      isChangeRequest: false,
+      allBookings: [],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      futureDays: 365,
+      sameDayBooking: true,
+      daysInAdvance: 0
+      // No blocked parameter - should work as before
+    },
+    expected: {
+      status: true,
+      errorMessage: ""
     }
   }
 ];
