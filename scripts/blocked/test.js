@@ -56,6 +56,32 @@ const testCases = [
       datesYearly: [],
       datesNotYearly: ["12/01/25","12/02/25","12/03/25","12/04/25","12/05/25","12/21/25","12/22/25","12/23/25"]
     }
+  },
+  // Test Case 4: Invalid JSON string input
+  {
+    name: "Invalid JSON string input",
+    input: '{"spaces": [1, 2], invalid}',
+    expected: {
+      datesYearly: [],
+      datesNotYearly: [],
+      errorMessage: "Invalid JSON input format"
+    }
+  },
+  // Test Case 5: Object input (no selectSpace)
+  {
+    name: "Object input (no selectSpace) - any space mode",
+    input: {
+      "spaces": [1, 2],
+      "blocked": [
+        {"yearly": false, "space": [], "start date": "12/01/2025", "end date": "12/05/2025"},
+        {"yearly": true, "space": [1], "start date": "11/20/2025", "end date": "11/21/2025"}
+      ]
+    },
+    inputAsObject: true, // Flag to pass object directly instead of JSON.stringifying
+    expected: {
+      datesYearly: ["11/20", "11/21"],
+      datesNotYearly: ["12/01/25","12/02/25","12/03/25","12/04/25","12/05/25"]
+    }
   }
 ];
 
@@ -69,11 +95,24 @@ function runTests() {
   let passed = 0;
   let failed = 0;
 
-  testCases.forEach((testCase, index) => {
-    console.log(`Test Case ${index + 1}: ${testCase.name}`);
-    console.log('-'.repeat(60));
+testCases.forEach((testCase, index) => {
+  console.log(`Test Case ${index + 1}: ${testCase.name}`);
+  console.log('-'.repeat(60));
 
-    const result = getBlockedDates(testCase.input);
+  // Special handling for test cases
+  let inputToTest;
+  if (testCase.inputAsObject) {
+    // Pass object directly
+    inputToTest = testCase.input;
+  } else if (typeof testCase.input === 'string') {
+    // Input is already a string (invalid JSON test)
+    inputToTest = testCase.input;
+  } else {
+    // Normal case: JSON.stringify the object
+    inputToTest = JSON.stringify(testCase.input);
+  }
+
+  const result = getBlockedDates(inputToTest);
 
     console.log(`Expected: ${JSON.stringify(testCase.expected)}`);
     console.log(`Actual:   ${JSON.stringify(result)}`);

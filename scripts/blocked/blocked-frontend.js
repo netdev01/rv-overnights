@@ -6,8 +6,23 @@
 
 // Note: If properties.param1 is JSON string, parse it; if it's already object, use directly
 function getBlockedDates(input) {
-  // Input should be a JSON string from Bubble's properties.param1
-  const data = JSON.parse(input);
+  let data;
+
+  // Handle both JSON strings and parsed objects (match additional-nights-available approach)
+  if (typeof input === 'string') {
+    try {
+      data = JSON.parse(input);
+    } catch (parseError) {
+      return {
+        datesYearly: [],
+        datesNotYearly: [],
+        errorMessage: "Invalid JSON input format"
+      };
+    }
+  } else {
+    // Assume it's already a parsed object
+    data = input;
+  }
   console.log('Parsed input:', data);
   const targetSpaces = (data.spaces || []).filter(s => s).map(s => String(s));
   const selectedSpace = (data.selectSpace != null) ? String(data.selectSpace) : null;
