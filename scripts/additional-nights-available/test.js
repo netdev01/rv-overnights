@@ -534,10 +534,8 @@ const testCases = [
       futureDays: 365,
       sameDayBooking: true,
       daysInAdvance: 0,
-      blocked: {
-        outputlist1: [futureMMDD(30).substring(0, 5)], // MM/DD part blocked yearly
-        outputlist2: []
-      }
+      blockedYearly: [futureMMDD(30)], // MM/DD blocked yearly
+      blockedNoYearly: []
     },
     expected: {
       status: false,
@@ -557,10 +555,8 @@ const testCases = [
       futureDays: 365,
       sameDayBooking: true,
       daysInAdvance: 0,
-      blocked: {
-        outputlist1: [],
-        outputlist2: [futureMMDDYY(40)]
-      }
+      blockedYearly: [],
+      blockedNoYearly: [futureMMDDYY(40)]
     },
     expected: {
       status: false,
@@ -579,8 +575,10 @@ const testCases = [
       daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
       futureDays: 365,
       sameDayBooking: true,
-      daysInAdvance: 0
-      // No blocked parameter - should work as before
+      daysInAdvance: 0,
+      blockedYearly: [],
+      blockedNoYearly: []
+      // No blocked dates - should work as before
     },
     expected: {
       status: true,

@@ -94,24 +94,21 @@ function checkAdditionalNightsAvailable(input) {
     // Parse blocked lists into sets
     const blockedYearlySet = new Set(); // MM/DD strings (yearly blocks)
     const blockedNotYearSet = new Set(); // ISO YYYY-MM-DD strings (non-yearly blocks)
-    if (input.blocked) {
-      // Accept processed output from blocked-server: { outputlist1: ["MM/DD"], outputlist2: ["MM/DD/YY"] }
-      if (Array.isArray(input.blocked.outputlist1)) {
-        input.blocked.outputlist1.forEach(s => blockedYearlySet.add(String(s)));
-      }
-      if (Array.isArray(input.blocked.outputlist2)) {
-        input.blocked.outputlist2.forEach(s => {
-          const parts = String(s).split('/'); // [MM, DD, YY]
-          if (parts.length === 3) {
-            const mm = Number(parts[0]);
-            const dd = Number(parts[1]);
-            const yy = Number(parts[2]);
-            const yyyy = 2000 + yy; // blocked-server uses 20YY
-            const iso = new Date(Date.UTC(yyyy, mm - 1, dd)).toISOString().split('T')[0];
-            blockedNotYearSet.add(iso);
-          }
-        });
-      }
+    if (Array.isArray(input.blockedYearly)) {
+      input.blockedYearly.forEach(s => blockedYearlySet.add(String(s)));
+    }
+    if (Array.isArray(input.blockedNoYearly)) {
+      input.blockedNoYearly.forEach(s => {
+        const parts = String(s).split('/'); // [MM, DD, YY]
+        if (parts.length === 3) {
+          const mm = Number(parts[0]);
+          const dd = Number(parts[1]);
+          const yy = Number(parts[2]);
+          const yyyy = 2000 + yy; // blocked-server uses 20YY
+          const iso = new Date(Date.UTC(yyyy, mm - 1, dd)).toISOString().split('T')[0];
+          blockedNotYearSet.add(iso);
+        }
+      });
     }
 
     // Check if selected date is within future booking limit
