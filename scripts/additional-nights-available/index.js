@@ -1,10 +1,11 @@
 // Server script for checking additional nights availability
 // Compatible with Bubble's toolbox plugin
 
-const MAX_BOOKING_YEAR_DIFFERENCE = 1; // Maximum calendar years in the future bookings are allowed
-
 function checkAdditionalNightsAvailable(input) {
+
   console.log('Input received:', JSON.stringify(input, null, 2));
+
+  const MAX_BOOKING_YEAR_DIFFERENCE = 1; // Maximum calendar years in the future bookings are allowed
 
   let status = true;
   let errorMessage = "";
