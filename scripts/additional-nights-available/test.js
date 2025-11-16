@@ -136,7 +136,8 @@ const testCases = [
     },
     expected: {
       status: false,
-      errorMessage: "Hosting not available on Sunday"
+      message: "Hosting not available on Sunday",
+      errorMessage: ""
     }
   },
   // Test Case 5: Insufficient advance notice

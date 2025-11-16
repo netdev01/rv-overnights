@@ -319,8 +319,8 @@ function checkAdditionalNightsAvailable(input) {
       const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
       if (!input.daysAvailableToHost.includes(dayName)) {
         status = false;
-        errorMessage = `Hosting not available on ${dayName}`;
-        return { status, errorMessage };
+        message = `Hosting not available on ${dayName}`;
+        return { status, message, errorMessage };
       }
 
       // Check user bookings first
