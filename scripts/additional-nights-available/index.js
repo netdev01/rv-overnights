@@ -316,15 +316,15 @@ function checkAdditionalNightsAvailable(input) {
       // Check user bookings first
       if (flatUserBookings.has(dateString)) {
         status = false;
-        errorMessage = `You already have a booking on ${dateString}`;
-        return { status, errorMessage };
+        message = `You already have a booking on ${dateString}`;
+        return { status, message, errorMessage };
       }
 
       // Check existing bookings
       if (flatAllBookings.has(dateString)) {
         status = false;
-        errorMessage = `Booking conflict: ${dateString} is already booked`;
-        return { status, errorMessage };
+        message = `Booking conflict: ${dateString} is already booked`;
+        return { status, message, errorMessage };
       }
     }
 

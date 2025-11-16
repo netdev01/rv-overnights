@@ -83,7 +83,8 @@ const testCases = [
     },
     expected: {
       status: false,
-      errorMessage: "Booking conflict: 2025-12-15 is already booked"
+      message: "Booking conflict: 2025-12-15 is already booked",
+      errorMessage: ""
     }
   },
   // Test Case 3: User booking conflict
@@ -109,7 +110,8 @@ const testCases = [
     },
     expected: {
       status: false,
-      errorMessage: "You already have a booking on 2025-12-16"
+      message: "You already have a booking on 2025-12-16",
+      errorMessage: ""
     }
   },
   // Test Case 4: Day not available for hosting
@@ -264,7 +266,8 @@ const testCases = [
     },
     expected: {
       status: false,
-      errorMessage: "Booking conflict: 2025-12-18 is already booked"
+      message: "Booking conflict: 2025-12-18 is already booked",
+      errorMessage: ""
     }
   },
   // Test Case 20: Additional nights semantics (1 additional = 2 nights)
@@ -305,7 +308,8 @@ const testCases = [
     },
     expected: {
       status: false,
-      errorMessage: "You already have a booking on 2025-12-01"
+      message: "You already have a booking on 2025-12-01",
+      errorMessage: ""
     }
   },
   // Test Case 11: Change request - user can book over their own existing bookings
@@ -357,7 +361,8 @@ const testCases = [
     },
     expected: {
       status: false,
-      errorMessage: "Booking conflict: 2025-12-12 is already booked"
+      message: "Booking conflict: 2025-12-12 is already booked",
+      errorMessage: ""
     }
   },
   // Test Case 13: Change request with invalid selectedDate (no matching user booking)
@@ -384,7 +389,8 @@ const testCases = [
     },
     expected: {
       status: false,
-      errorMessage: "You already have a booking on 2025-12-16"
+      message: "You already have a booking on 2025-12-16",
+      errorMessage: ""
     }
   },
   // Test Case 14: Booking range exceeds future limit
@@ -474,7 +480,8 @@ const testCases = [
     },
     expected: {
       status: false,
-      errorMessage: "You already have a booking on 2025-12-16"
+      message: "You already have a booking on 2025-12-16",
+      errorMessage: ""
     }
   },
   // Test Case 18: JSON string input (Bubble.io compatibility)
@@ -743,6 +750,67 @@ const testCases = [
     expected: {
       status: false,
       message: "Date blocked: 2025-12-10",
+      errorMessage: ""
+    }
+  },
+  // Test Case 30: User's test input with blocked yearly ranges and space filtering
+  {
+    name: "User's test input with blocked yearly ranges and space filtering",
+    input: {
+      "space": 1,
+      "selectedDate": "2025-11-19",
+      "additionalNights": 3,
+      "isChangeRequest": true,
+      "currentBooking": {"checkIn": "2025-12-15", "checkout": "2025-12-17"},
+      "allBookings": [{
+        "checkIn": "2025-12-01",
+        "checkout": "2025-12-05"
+      },{
+        "checkIn": "2025-11-20",
+        "checkout": "2025-11-21"
+      },{
+        "checkIn": "2025-12-10",
+        "checkout": "2025-12-11"
+      },{
+        "checkIn": "2025-12-15",
+        "checkout": "2025-12-17"
+      },{
+        "checkIn": "2025-12-27",
+        "checkout": "2025-12-27"
+      }],
+      "userBooking": [{
+        "checkIn": "2025-12-01",
+        "checkout": "2025-12-05"
+      },{
+        "checkIn": "2025-12-15",
+        "checkout": "2025-12-17"
+      }],
+      "daysAvailableToHost": ["Wednesday","Monday","Sunday","Saturday","Thursday","Tuesday","Friday"],
+      "futureDays": 365,
+      "sameDayBooking": false,
+      "daysInAdvance": 1,
+      "blockedYearly": [{
+        "spaces": [1],
+        "start": "2025-11-13",
+        "end": "2025-11-14"
+      },{
+        "spaces": [1],
+        "start": "2025-11-20",
+        "end": "2025-11-21"
+      },{
+        "spaces": [1],
+        "start": "2025-12-10",
+        "end": "2025-12-11"
+      }],
+      "blockedNoYearly": [{
+        "spaces": [1, 2],
+        "start": "2025-12-27",
+        "end": "2025-12-27"
+      }]
+    },
+    expected: {
+      status: false,
+      message: "Date blocked: 2025-11-20",
       errorMessage: ""
     }
   }
