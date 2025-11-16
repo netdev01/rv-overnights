@@ -1,5 +1,15 @@
 // Server script for checking additional nights availability
-// Compatible with Bubble's toolbox plugin
+
+/* How to use it i sever side script in Bubble.
+var input = properties.thing1;
+var result = checkAdditionalNightsAvailable(input);
+
+return {
+    output1: result.status,    
+    output2: result.message,  
+    output3: result.errorMessage,  
+};
+ */
 
 function checkAdditionalNightsAvailable(input) {
 
