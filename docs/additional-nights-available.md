@@ -24,7 +24,7 @@ The script accepts a JSON object with the following properties:
 - **futureDays** (number): Maximum number of days in the future that can be booked (integer)
 - **sameDayBooking** (boolean): Whether same-day bookings are allowed (true/false)
 - **daysInAdvance** (number): Minimum number of days required in advance for booking (integer)
-- **blockedYearly** (array): Optional array of "MM/DD" strings for yearly blocked dates (e.g., ["10/01", "12/25"])
+- **blockedYearly** (array): Optional array of "MM/DD" or "MM-DD" strings for yearly blocked dates (e.g., ["10/01", "12-25"])
 - **blockedNoYearly** (array): Optional array of "MM/DD/YY" strings for specific non-yearly blocked dates (e.g., ["10/01/25", "12/25/25"])
 
 ## Output

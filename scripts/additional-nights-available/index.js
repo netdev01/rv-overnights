@@ -103,47 +103,60 @@ function checkAdditionalNightsAvailable(input) {
     const invalidYearlyEntries = [];
     const invalidNotYearlyEntries = [];
 
-    // Validate blockedYearly: MM-DD format
+    // Validate blockedYearly: MM/DD or MM-DD format
     if (Array.isArray(input.blockedYearly)) {
       input.blockedYearly.forEach(s => {
         const str = String(s).trim();
-        if (!/^\d{2}-\d{2}$/.test(str)) {
+        if (!/^\d{1,2}[\/-]\d{1,2}$/.test(str)) {
           invalidYearlyEntries.push(str);
           return;
         }
-        const [mm, dd] = str.split('-').map(Number);
+        const parts = str.split(/[/]/).length === 2 ? str.split('/') : str.split('-');
+        const mm = Number(parts[0]);
+        const dd = Number(parts[1]);
         if (mm < 1 || mm > 12 || dd < 1 || dd > 31) {
           invalidYearlyEntries.push(str);
           return;
         }
-        // Valid - add regardless of date validity (some months have fewer days)
+        // Valid - normalize to MM-DD regardless of input format
         blockedYearlySet.add(`${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`);
       });
     }
 
-    // Validate blockedNoYearly: YYYY-MM-DD format
+    // Validate blockedNoYearly: MM/DD/YY, MM/DD/YYYY, or YYYY-MM-DD format (for compatibility)
     if (Array.isArray(input.blockedNoYearly)) {
       input.blockedNoYearly.forEach(s => {
         const str = String(s).trim();
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        let year, mm, dd;
+        if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+          // YYYY-MM-DD format
+          [year, mm, dd] = str.split('-').map(Number);
+        } else if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(str)) {
+          // MM/DD/YY or MM/DD/YYYY format
+          const parts = str.split('/');
+          mm = Number(parts[0]);
+          dd = Number(parts[1]);
+          let yy = parts[2];
+          year = yy.length === 4 ? Number(yy) : Number('20' + yy);
+        } else {
           invalidNotYearlyEntries.push(str);
           return;
         }
-        const [year, month, day] = str.split('-').map(Number);
-        if (month < 1 || month > 12 || day < 1 || day > 31) {
+        if (mm < 1 || mm > 12 || dd < 1 || dd > 31 || year < 1 || year > 9999) {
           invalidNotYearlyEntries.push(str);
           return;
         }
         // Validate full date
-        const testDate = new Date(year, month - 1, day);
+        const testDate = new Date(year, mm - 1, dd);
         if (testDate.getFullYear() !== year ||
-            testDate.getMonth() !== month - 1 ||
-            testDate.getDate() !== day) {
+            testDate.getMonth() !== mm - 1 ||
+            testDate.getDate() !== dd) {
           invalidNotYearlyEntries.push(str);
           return;
         }
-        // Valid - add as string
-        blockedNotYearSet.add(str);
+        // Valid - normalize to YYYY-MM-DD
+        const normalized = `${String(year).padStart(4,'0')}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+        blockedNotYearSet.add(normalized);
       });
     }
 
