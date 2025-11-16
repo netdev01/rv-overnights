@@ -24,6 +24,12 @@ function futureMMDD(days) {
   const dd = String(d.getUTCDate()).padStart(2,'0');
   return `${mm}-${dd}`; // Use hyphen for MM-DD format
 }
+function futurePlusOneYearOneDay() {
+  const d = new Date();
+  d.setUTCFullYear(d.getUTCFullYear() + 1);
+  d.setUTCDate(d.getUTCDate() + 1);
+  return formatISO(d);
+}
 
 // Comprehensive test cases covering all scenarios
 const testCases = [
@@ -626,6 +632,25 @@ const testCases = [
       status: false,
       message: `Date blocked: ${futureISO(50)}`,
       errorMessage: `Ignored invalid blockedYearly entries: ['33-01', '99-99']`
+    }
+  },
+  // Test Case 25: Booking exceeds 1 calendar year limit
+  {
+    name: "Booking exceeds 1 calendar year limit",
+    input: {
+      selectedDate: futurePlusOneYearOneDay(),
+      additionalNights: 1,
+      isChangeRequest: false,
+      allBookings: [],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      futureDays: 3650, // Very large to not interfere
+      sameDayBooking: true,
+      daysInAdvance: 0
+    },
+    expected: {
+      status: false,
+      errorMessage: "Cannot book more than 1 year(s) in the future"
     }
   }
 ];

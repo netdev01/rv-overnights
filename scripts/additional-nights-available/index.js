@@ -1,6 +1,8 @@
 // Server script for checking additional nights availability
 // Compatible with Bubble's toolbox plugin
 
+const MAX_BOOKING_YEAR_DIFFERENCE = 1; // Maximum calendar years in the future bookings are allowed
+
 function checkAdditionalNightsAvailable(input) {
   console.log('Input received:', JSON.stringify(input, null, 2));
 
@@ -92,6 +94,7 @@ function checkAdditionalNightsAvailable(input) {
     const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
     const selectedDate = new Date(Date.UTC(selectedYear, selectedMonth - 1, selectedDay));
     const lastPossibleDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + input.futureDays));
+    const lastAllowedCalendarDate = new Date(Date.UTC(today.getUTCFullYear() + MAX_BOOKING_YEAR_DIFFERENCE, today.getUTCMonth(), today.getUTCDate()));
 
     // Parse and validate blocked lists into sets
     const blockedYearlySet = new Set(); // "MM-DD" strings (yearly blocks)
@@ -169,6 +172,15 @@ function checkAdditionalNightsAvailable(input) {
       const checkDate = new Date(selectedDate);
       checkDate.setDate(selectedDate.getDate() + i);
       datesToCheck.push(checkDate);
+    }
+
+    // Check if any date is beyond the 1-year calendar limit
+    for (const date of datesToCheck) {
+      if (date > lastAllowedCalendarDate) {
+        status = false;
+        errorMessage = `Cannot book more than ${MAX_BOOKING_YEAR_DIFFERENCE} year(s) in the future`;
+        return { status, message, errorMessage };
+      }
     }
 
     // Check blocked dates (before other checks for better error messages)

@@ -41,11 +41,12 @@ Returns a JSON object with:
 The script validates availability by checking:
 
 1. **Date Range Validity**: Ensures the selected date and additional nights don't exceed future booking limits
-2. **Advance Booking Requirements**: Checks if booking is made with sufficient notice
-3. **Same-Day Booking Policy**: Respects same-day booking restrictions
-4. **Day-of-Week Availability**: Only allows booking on specified hosting days
-5. **Existing Bookings**: Prevents double-booking on dates already reserved
-6. **User Booking Conflicts**: Prevents users from booking dates they already have reserved
+2. **Calendar Year Limit**: Bookings are only allowed up to 1 calendar year from the current date
+3. **Advance Booking Requirements**: Checks if booking is made with sufficient notice
+4. **Same-Day Booking Policy**: Respects same-day booking restrictions
+5. **Day-of-Week Availability**: Only allows booking on specified hosting days
+6. **Existing Bookings**: Prevents double-booking on dates already reserved
+7. **User Booking Conflicts**: Prevents users from booking dates they already have reserved
 
 **Note**: The number of nights checked is `additionalNights + 1`, including the selectedDate and the following additionalNights dates.
 
