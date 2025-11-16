@@ -87,6 +87,13 @@ function checkAdditionalNightsAvailable(input) {
       return { status, message, errorMessage };
     }
 
+    // Validate space field (optional)
+    if (input.space !== undefined && (typeof input.space !== 'number' || input.space < 1 || !Number.isInteger(input.space))) {
+      status = false;
+      errorMessage = "space must be a positive integer or omitted";
+      return { status, message, errorMessage };
+    }
+
     const selectedDateParts = input.selectedDate.split('-').map(Number);
     const selectedYear = selectedDateParts[0];
     const selectedMonth = selectedDateParts[1];
@@ -97,66 +104,100 @@ function checkAdditionalNightsAvailable(input) {
     const lastPossibleDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + input.futureDays));
     const lastAllowedCalendarDate = new Date(Date.UTC(today.getUTCFullYear() + MAX_BOOKING_YEAR_DIFFERENCE, today.getUTCMonth(), today.getUTCDate()));
 
-    // Parse and validate blocked lists into sets
+    // Parse and validate blocked lists into sets with space filtering
     const blockedYearlySet = new Set(); // "MM-DD" strings (yearly blocks)
     const blockedNotYearSet = new Set(); // "YYYY-MM-DD" strings (non-yearly blocks)
     const invalidYearlyEntries = [];
     const invalidNotYearlyEntries = [];
 
-    // Validate blockedYearly: MM/DD or MM-DD format
+    const inputSpace = input.space; // optional
+
+    // Function to check if entry applies to current space (applies if no spaces or includes inputSpace)
+    const appliesToSpace = (entry) => {
+      if (entry.spaces === undefined) return true;               // no spaces field -> global
+      if (!Array.isArray(entry.spaces)) return true;            // malformed -> treat as global
+      if (entry.spaces.length === 0) return true;              // empty array -> global (user expectation)
+      return entry.spaces.includes(inputSpace);                 // otherwise require inclusion
+    };
+
+    // Process blockedYearly
     if (Array.isArray(input.blockedYearly)) {
-      input.blockedYearly.forEach(s => {
-        const str = String(s).trim();
-        if (!/^\d{1,2}[\/-]\d{1,2}$/.test(str)) {
-          invalidYearlyEntries.push(str);
-          return;
+      input.blockedYearly.forEach(entry => {
+        if (typeof entry === 'string') {
+          // Legacy string format
+          const str = entry.trim();
+          if (!/^\d{1,2}[\/-]\d{1,2}$/.test(str)) {
+            invalidYearlyEntries.push(str);
+            return;
+          }
+          const parts = str.split(/[/]/).length === 2 ? str.split('/') : str.split('-');
+          const mm = Number(parts[0]);
+          const dd = Number(parts[1]);
+          if (mm < 1 || mm > 12 || dd < 1 || dd > 31) {
+            invalidYearlyEntries.push(str);
+            return;
+          }
+          // Valid - normalize to MM-DD
+          blockedYearlySet.add(`${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`);
+        } else if (typeof entry === 'object' && entry.start && entry.end) {
+          // New object format
+          if (!appliesToSpace(entry)) return; // skip if not for this space
+          if (!isValidDateString(entry.start) || !isValidDateString(entry.end)) {
+            invalidYearlyEntries.push(JSON.stringify(entry));
+            return;
+          }
+          const startMMDD = generateMMDD(entry.start);
+          const endMMDD = generateMMDD(entry.end);
+          const mmddRange = generateMMDDRange(startMMDD, endMMDD);
+          mmddRange.forEach(mmdd => blockedYearlySet.add(mmdd));
+        } else {
+          invalidYearlyEntries.push(JSON.stringify(entry));
         }
-        const parts = str.split(/[/]/).length === 2 ? str.split('/') : str.split('-');
-        const mm = Number(parts[0]);
-        const dd = Number(parts[1]);
-        if (mm < 1 || mm > 12 || dd < 1 || dd > 31) {
-          invalidYearlyEntries.push(str);
-          return;
-        }
-        // Valid - normalize to MM-DD regardless of input format
-        blockedYearlySet.add(`${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`);
       });
     }
 
-    // Validate blockedNoYearly: MM/DD/YY, MM/DD/YYYY, or YYYY-MM-DD format (for compatibility)
+    // Process blockedNoYearly
     if (Array.isArray(input.blockedNoYearly)) {
-      input.blockedNoYearly.forEach(s => {
-        const str = String(s).trim();
-        let year, mm, dd;
-        if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
-          // YYYY-MM-DD format
-          [year, mm, dd] = str.split('-').map(Number);
-        } else if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(str)) {
-          // MM/DD/YY or MM/DD/YYYY format
-          const parts = str.split('/');
-          mm = Number(parts[0]);
-          dd = Number(parts[1]);
-          let yy = parts[2];
-          year = yy.length === 4 ? Number(yy) : Number('20' + yy);
+      input.blockedNoYearly.forEach(entry => {
+        if (typeof entry === 'string') {
+          // Legacy string format
+          const str = entry.trim();
+          let year, mm, dd;
+          if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+            [year, mm, dd] = str.split('-').map(Number);
+          } else if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(str)) {
+            const parts = str.split('/');
+            mm = Number(parts[0]);
+            dd = Number(parts[1]);
+            let yy = parts[2];
+            year = yy.length === 4 ? Number(yy) : Number('20' + yy);
+          } else {
+            invalidNotYearlyEntries.push(str);
+            return;
+          }
+          if (mm < 1 || mm > 12 || dd < 1 || dd > 31 || year < 1 || year > 9999) {
+            invalidNotYearlyEntries.push(str);
+            return;
+          }
+          const testDate = new Date(year, mm - 1, dd);
+          if (testDate.getFullYear() !== year || testDate.getMonth() !== mm - 1 || testDate.getDate() !== dd) {
+            invalidNotYearlyEntries.push(str);
+            return;
+          }
+          const normalized = `${String(year).padStart(4,'0')}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+          blockedNotYearSet.add(normalized);
+        } else if (typeof entry === 'object' && entry.start && entry.end) {
+          // New object format - expand inclusive range
+          if (!appliesToSpace(entry)) return; // skip if not for this space
+          if (!isValidDateString(entry.start) || !isValidDateString(entry.end)) {
+            invalidNotYearlyEntries.push(JSON.stringify(entry));
+            return;
+          }
+          const dates = generateInclusiveDateRange(entry.start, entry.end);
+          dates.forEach(date => blockedNotYearSet.add(date));
         } else {
-          invalidNotYearlyEntries.push(str);
-          return;
+          invalidNotYearlyEntries.push(JSON.stringify(entry));
         }
-        if (mm < 1 || mm > 12 || dd < 1 || dd > 31 || year < 1 || year > 9999) {
-          invalidNotYearlyEntries.push(str);
-          return;
-        }
-        // Validate full date
-        const testDate = new Date(year, mm - 1, dd);
-        if (testDate.getFullYear() !== year ||
-            testDate.getMonth() !== mm - 1 ||
-            testDate.getDate() !== dd) {
-          invalidNotYearlyEntries.push(str);
-          return;
-        }
-        // Valid - normalize to YYYY-MM-DD
-        const normalized = `${String(year).padStart(4,'0')}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
-        blockedNotYearSet.add(normalized);
       });
     }
 
@@ -324,7 +365,7 @@ function generateDateRange(checkIn, checkout) {
   const startYear = startParts[0];
   const startMonth = startParts[1];
   const startDay = startParts[2];
-  
+
   const endParts = checkout.split('-').map(Number);
   const endYear = endParts[0];
   const endMonth = endParts[1];
@@ -335,6 +376,85 @@ function generateDateRange(checkIn, checkout) {
 
   const currentDate = new Date(startDate);
   while (currentDate < endDate) {
+    dates.push(currentDate.toISOString().split('T')[0]);
+    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+  }
+
+  return dates;
+}
+
+// Helper function to extract MM-DD from YYYY-MM-DD
+function generateMMDD(dateString) {
+  const parts = dateString.split('-');
+  return `${parts[1]}-${parts[2]}`; // MM-DD
+}
+
+// Helper function to generate MM-DD range, handling year wrap inclusive
+function generateMMDDRange(startMMDD, endMMDD) {
+  const mmdds = new Set();
+  const [startM, startD] = startMMDD.split('-').map(Number);
+  const [endM, endD] = endMMDD.split('-').map(Number);
+
+  if (startMMDD <= endMMDD) {
+    // Same year
+    let m = startM;
+    let d = startD;
+    while (m <= endM) {
+      const maxD = m === endM ? endD : 31; // rough
+      while (d <= maxD) {
+        mmdds.add(`${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+        d++;
+      }
+      d = 1;
+      m++;
+    }
+  } else {
+    // Wrap around
+    // From start to 12-31
+    let m = startM;
+    let d = startD;
+    while (m <= 12) {
+      const maxD = 31;
+      while (d <= maxD) {
+        mmdds.add(`${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+        d++;
+      }
+      d = 1;
+      m++;
+    }
+    // From 01-01 to end
+    m = 1;
+    d = 1;
+    while (m <= endM) {
+      const maxD = m === endM ? endD : 31;
+      while (d <= maxD) {
+        mmdds.add(`${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+        d++;
+      }
+      d = 1;
+      m++;
+    }
+  }
+  return Array.from(mmdds).sort();
+}
+
+// Helper function to generate inclusive date range
+function generateInclusiveDateRange(start, end) {
+  const dates = [];
+  const startParts = start.split('-').map(Number);
+  const endParts = end.split('-').map(Number);
+  const startYear = startParts[0];
+  const startMonth = startParts[1];
+  const startDay = startParts[2];
+  const endYear = endParts[0];
+  const endMonth = endParts[1];
+  const endDay = endParts[2];
+
+  const startDate = new Date(Date.UTC(startYear, startMonth - 1, startDay));
+  const endDate = new Date(Date.UTC(endYear, endMonth - 1, endDay));
+
+  const currentDate = new Date(startDate);
+  while (currentDate <= endDate) { // inclusive now
     dates.push(currentDate.toISOString().split('T')[0]);
     currentDate.setUTCDate(currentDate.getUTCDate() + 1);
   }

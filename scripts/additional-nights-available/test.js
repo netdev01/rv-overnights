@@ -15,7 +15,10 @@ function futureISO(days) {
 function futureMMDDYY(days) {
   const d = new Date();
   d.setUTCDate(d.getUTCDate() + days);
-  return formatISO(d); // Return YYYY-MM-DD format for blockedNoYearly
+  const mm = String(d.getUTCMonth() + 1).padStart(2,'0');
+  const dd = String(d.getUTCDate()).padStart(2,'0');
+  const yy = String(d.getUTCFullYear()).slice(-2);
+  return `${mm}/${dd}/${yy}`; // Return MM/DD/YY format for blockedNoYearly
 }
 function futureMMDD(days) {
   const d = new Date();
@@ -651,6 +654,96 @@ const testCases = [
     expected: {
       status: false,
       errorMessage: "Cannot book more than 1 year(s) in the future"
+    }
+  },
+  // Test Case 26: Object-format blockedYearly with space filtering (space=1 includes entry)
+  {
+    name: "Object-format blockedYearly with space filtering (included)",
+    input: {
+      space: 1,
+      selectedDate: "2025-12-10",
+      additionalNights: 1,
+      isChangeRequest: false,
+      allBookings: [],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      futureDays: 365,
+      sameDayBooking: true,
+      daysInAdvance: 0,
+      blockedYearly: [{"spaces": [1], "start": "2025-12-10", "end": "2025-12-10"}],
+      blockedNoYearly: []
+    },
+    expected: {
+      status: false,
+      message: "Date blocked: 2025-12-10",
+      errorMessage: ""
+    }
+  },
+  // Test Case 27: Object-format blockedYearly space filtering (excluded)
+  {
+    name: "Object-format blockedYearly with space filtering (excluded)",
+    input: {
+      space: 2,
+      selectedDate: "2025-12-10",
+      additionalNights: 1,
+      isChangeRequest: false,
+      allBookings: [],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      futureDays: 365,
+      sameDayBooking: true,
+      daysInAdvance: 0,
+      blockedYearly: [{"spaces": [1], "start": "2025-12-10", "end": "2025-12-10"}],
+      blockedNoYearly: []
+    },
+    expected: {
+      status: true,
+      errorMessage: ""
+    }
+  },
+  // Test Case 28: Object-format blockedNoYearly range
+  {
+    name: "Object-format blockedNoYearly range",
+    input: {
+      selectedDate: "2025-12-26",
+      additionalNights: 1,
+      isChangeRequest: false,
+      allBookings: [],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      futureDays: 365,
+      sameDayBooking: true,
+      daysInAdvance: 0,
+      blockedYearly: [],
+      blockedNoYearly: [{"spaces": [], "start": "2025-12-26", "end": "2025-12-27"}]
+    },
+    expected: {
+      status: false,
+      message: "Date blocked: 2025-12-26",
+      errorMessage: ""
+    }
+  },
+  // Test Case 29: Mixed object and string blocked entries
+  {
+    name: "Mixed object and string blocked entries",
+    input: {
+      space: 1,
+      selectedDate: "2025-12-10",
+      additionalNights: 1,
+      isChangeRequest: false,
+      allBookings: [],
+      userBooking: [],
+      daysAvailableToHost: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      futureDays: 365,
+      sameDayBooking: true,
+      daysInAdvance: 0,
+      blockedYearly: ["11/15", {"spaces": [1], "start": "2025-12-10", "end": "2025-12-10"}],
+      blockedNoYearly: []
+    },
+    expected: {
+      status: false,
+      message: "Date blocked: 2025-12-10",
+      errorMessage: ""
     }
   }
 ];

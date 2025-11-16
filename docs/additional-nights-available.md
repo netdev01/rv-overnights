@@ -14,6 +14,7 @@ When malformed blocked entries are present along with valid ones, the malformed 
 
 The script accepts a JSON object with the following properties:
 
+- **space** (number, optional): The space/listing ID for filtering blocked entries. If provided, blocked entries are only applied if their `spaces` array includes this space ID (or if no `spaces` field). If omitted, blocked entries without `spaces` apply globally.
 - **selectedDate** (string): The starting date for additional nights in YYYY-MM-DD format
 - **additionalNights** (number): The number of additional nights beyond the selectedDate to check for availability (integer). Total nights checked = additionalNights + 1.
 - **isChangeRequest** (boolean): Whether this is a change request for existing booking (true/false). If true, the `currentBooking` parameter must be provided to identify the original booking to exclude from conflict checking
@@ -24,8 +25,8 @@ The script accepts a JSON object with the following properties:
 - **futureDays** (number): Maximum number of days in the future that can be booked (integer)
 - **sameDayBooking** (boolean): Whether same-day bookings are allowed (true/false)
 - **daysInAdvance** (number): Minimum number of days required in advance for booking (integer)
-- **blockedYearly** (array): Optional array of "MM/DD" or "MM-DD" strings for yearly blocked dates (e.g., ["10/01", "12-25"])
-- **blockedNoYearly** (array): Optional array of "MM/DD/YY" strings for specific non-yearly blocked dates (e.g., ["10/01/25", "12/25/25"])
+- **blockedYearly** (array): Optional array of terms. Each term can be a string "MM/DD" or "MM-DD" for single dates, or an object with `start`, `end` (YYYY-MM-DD format, inclusive), and optional `spaces` (array of numbers indicating which space IDs this applies to).
+- **blockedNoYearly** (array): Optional array of terms. Each term can be a string "MM/DD/YY", "YYYY-MM-DD", or an object with `start`, `end` (YYYY-MM-DD format, inclusive), and optional `spaces` (array of numbers).
 
 ## Output
 
