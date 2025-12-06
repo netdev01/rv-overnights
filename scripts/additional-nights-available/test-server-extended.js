@@ -1,5 +1,5 @@
 // Additional tests for missing edge cases in additional-nights-available
-const { checkAdditionalNightsAvailable } = require("./index");
+const { checkAdditionalNightsAvailable } = require("./server");
 
 function formatISO(d) { return d.toISOString().split("T")[0]; }
 function futureISO(days) { const d = new Date(); d.setUTCDate(d.getUTCDate() + days); return formatISO(d); }

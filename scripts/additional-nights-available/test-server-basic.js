@@ -1,6 +1,6 @@
 // Rewritten, deterministic test suite for additional nights availability
 // Uses futureISO(...) to keep dates time-safe
-const { checkAdditionalNightsAvailable } = require("./index");
+const { checkAdditionalNightsAvailable } = require("./server");
 
 function formatISO(d) {
   return d.toISOString().split("T")[0];
