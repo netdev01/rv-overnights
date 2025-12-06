@@ -3,8 +3,8 @@ const { checkAdditionalNightsAvailable } = require('./index');
 
 const testInput = {
     "space": 1, 
-    "selectedDate": "2025-12-14",
-    "additionalNights": 2,
+    "selectedDate": "2026-11-16",
+    "additionalNights": 3,
     "isChangeRequest": true,
     "currentBooking": {"checkIn": "2025-12-15", "checkout": "2025-12-17"},
     "allBookings": [{
@@ -30,7 +30,7 @@ const testInput = {
     "checkIn": "2025-12-15", 
     "checkout": "2025-12-17"
 }],
-    "daysAvailableToHost": ["Wednesday","Monday","Sunday","Saturday","Thursday","Tuesday","Friday"],
+    "daysAvailableToHost": ["Wednesday","Monday","Thursday","Tuesday","Friday","Saturday"],
     "futureDays": 365,
     "sameDayBooking": false,
     "daysInAdvance": 1,

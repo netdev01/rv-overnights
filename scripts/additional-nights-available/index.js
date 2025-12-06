@@ -15,8 +15,6 @@ function checkAdditionalNightsAvailable(input) {
 
   console.log('Input received:', JSON.stringify(input, null, 2));
 
-  const MAX_BOOKING_YEAR_DIFFERENCE = 1; // Maximum calendar years in the future bookings are allowed
-
   let status = true;
   let errorMessage = "";
   let message = "";
@@ -39,10 +37,24 @@ function checkAdditionalNightsAvailable(input) {
       return { status, message, errorMessage };
     }
 
-    if (!Number.isInteger(input.additionalNights) || input.additionalNights < 1) {
+    // Validate allowAdditionalNights (optional, defaults to false)
+    const allowAdditionalNights = input.allowAdditionalNights !== undefined ? input.allowAdditionalNights : false;
+    if (typeof allowAdditionalNights !== 'boolean') {
       status = false;
+      errorMessage = "allowAdditionalNights must be a boolean";
+      return { status, message, errorMessage };
+    }
 
-      errorMessage = "Additional nights must be a positive integer";
+    if (!Number.isInteger(input.additionalNights) || input.additionalNights < 0) {
+      status = false;
+      errorMessage = "Additional nights must be a non-negative integer";
+      return { status, message, errorMessage };
+    }
+
+    // Enforce allowAdditionalNights policy
+    if (!allowAdditionalNights && input.additionalNights > 0) {
+      status = false;
+      message = "Additional nights are not allowed";
       return { status, message, errorMessage };
     }
 
@@ -112,7 +124,23 @@ function checkAdditionalNightsAvailable(input) {
     const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
     const selectedDate = new Date(Date.UTC(selectedYear, selectedMonth - 1, selectedDay));
     const lastPossibleDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + input.futureDays));
-    const lastAllowedCalendarDate = new Date(Date.UTC(today.getUTCFullYear() + MAX_BOOKING_YEAR_DIFFERENCE, today.getUTCMonth(), today.getUTCDate()));
+
+    // Generate all dates to check (includes selectedDate + additionalNights nights)
+    const datesToCheck = [];
+    for (let i = 0; i <= input.additionalNights; i++) {
+      const checkDate = new Date(selectedDate);
+      checkDate.setDate(selectedDate.getDate() + i);
+      datesToCheck.push(checkDate);
+    }
+
+    // Check the entire booking range against future booking limit
+    for (const date of datesToCheck) {
+      if (date > lastPossibleDate) {
+        status = false;
+        message = `Cannot book more than ${input.futureDays} days in the future`;
+        return { status, message, errorMessage };
+      }
+    }
 
     // Parse and validate blocked lists into sets with space filtering
     const blockedYearlySet = new Set(); // "MM-DD" strings (yearly blocks)
@@ -224,30 +252,6 @@ function checkAdditionalNightsAvailable(input) {
       message = "Some blocked dates were ignored due to invalid format";
     }
 
-    // Check if selected date is within future booking limit
-    if (selectedDate > lastPossibleDate) {
-      status = false;
-      errorMessage = `Cannot book more than ${input.futureDays} days in the future`;
-      return { status, message, errorMessage };
-    }
-
-    // Generate all dates to check (includes selectedDate + additionalNights nights)
-    const datesToCheck = [];
-    for (let i = 0; i <= input.additionalNights; i++) {
-      const checkDate = new Date(selectedDate);
-      checkDate.setDate(selectedDate.getDate() + i);
-      datesToCheck.push(checkDate);
-    }
-
-    // Check if any date is beyond the 1-year calendar limit
-    for (const date of datesToCheck) {
-      if (date > lastAllowedCalendarDate) {
-        status = false;
-        errorMessage = `Cannot book more than ${MAX_BOOKING_YEAR_DIFFERENCE} year(s) in the future`;
-        return { status, message, errorMessage };
-      }
-    }
-
     // Check blocked dates (before other checks for better error messages)
     for (const date of datesToCheck) {
       const dateString = date.toISOString().split('T')[0];
@@ -267,15 +271,15 @@ function checkAdditionalNightsAvailable(input) {
     // Check same-day booking policy first (before advance booking check)
     if (!input.sameDayBooking && daysDifference === 0) {
       status = false;
-      errorMessage = "Same-day bookings are not allowed";
-      return { status, errorMessage };
+      message = "Same-day bookings are not allowed";
+      return { status, message, errorMessage };
     }
 
     // Check advance booking requirement
     if (daysDifference < input.daysInAdvance) {
       status = false;
-      errorMessage = `Bookings must be made at least ${input.daysInAdvance} days in advance`;
-      return { status, errorMessage };
+      message = `Bookings must be made at least ${input.daysInAdvance} days in advance`;
+      return { status, message, errorMessage };
     }
 
     // Convert booking ranges to individual dates

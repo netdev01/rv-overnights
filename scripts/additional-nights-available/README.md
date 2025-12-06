@@ -16,7 +16,8 @@ The script accepts a JSON object with the following properties:
 
 - **space** (number, optional): The space/listing ID for filtering blocked entries. If provided, blocked entries are only applied if their `spaces` array includes this space ID (or if no `spaces` field). If omitted, blocked entries without `spaces` apply globally.
 - **selectedDate** (string): The starting date for additional nights in YYYY-MM-DD format
-- **additionalNights** (number): The number of additional nights beyond the selectedDate to check for availability (integer). Total nights checked = additionalNights + 1.
+- **allowAdditionalNights** (boolean, optional): Whether additional nights are allowed beyond the selected date. Defaults to false if omitted. If false and additionalNights > 0, the request will be denied.
+- **additionalNights** (number): The number of additional nights beyond the selectedDate to check for availability (integer, >= 0). Total nights checked = additionalNights + 1. A value of 0 means only the selectedDate itself.
 - **isChangeRequest** (boolean): Whether this is a change request for existing booking (true/false). If true, the `currentBooking` parameter must be provided to identify the original booking to exclude from conflict checking
 - **currentBooking** (object): Required when `isChangeRequest` is true. An object with `checkIn` and `checkout` properties (YYYY-MM-DD format) representing the original booking dates to exclude from conflict checking
 - **allBookings** (array): List of existing future booking ranges, each as an object with `checkIn` and `checkout` properties (YYYY-MM-DD format)
